@@ -136,6 +136,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
     borderRadius: 8,
   },
+  qrCode: {
+    width: 80,
+    height: 80,
+    marginBottom: 10,
+  },
   qrText: {
     fontSize: 10,
     color: '#64748b',
@@ -157,7 +162,9 @@ const TicketPDF = ({ booking }) => {
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -167,7 +174,9 @@ const TicketPDF = ({ booking }) => {
 
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
-    return new Date(timeString).toLocaleTimeString('en-US', {
+    const time = new Date(timeString);
+    if (isNaN(time.getTime())) return 'N/A';
+    return time.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -233,14 +242,14 @@ const TicketPDF = ({ booking }) => {
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Departure Date</Text>
                 <Text style={styles.detailValue}>
-                  {formatDate(booking.ticketId?.departureDate || booking.ticketDetails?.departureDateTime)}
+                  {formatDate(booking.ticketId?.departureDate)}
                 </Text>
               </View>
 
               <View style={styles.detailItem}>
                 <Text style={styles.detailLabel}>Departure Time</Text>
                 <Text style={styles.detailValue}>
-                  {booking.ticketId?.departureTime || formatTime(booking.ticketDetails?.departureDateTime) || 'N/A'}
+                  {booking.ticketId?.departureTime || 'N/A'}
                 </Text>
               </View>
 
@@ -275,6 +284,12 @@ const TicketPDF = ({ booking }) => {
 
             {/* QR Code Section */}
             <View style={styles.qrSection}>
+              <Image 
+                style={styles.qrCode}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                  `URAAN-TICKET:${booking.bookingId || booking._id}|FROM:${booking.ticketId?.from || 'N/A'}|TO:${booking.ticketId?.to || 'N/A'}|DATE:${formatDate(booking.ticketId?.departureDate)}|TIME:${booking.ticketId?.departureTime || 'N/A'}|SEAT:${generateSeatNumber()}|PRICE:${booking.totalPrice}`
+                )}`}
+              />
               <Text style={styles.qrText}>
                 Scan this QR code at the terminal for quick check-in
               </Text>
@@ -297,7 +312,7 @@ const TicketPDF = ({ booking }) => {
             Generated on: {new Date().toLocaleDateString('en-US')} at {new Date().toLocaleTimeString('en-US')}
           </Text>
           <Text style={styles.footerText}>
-            For support: support@uraan.com | +880 1234-567890
+            For support: support@uraan.com | 01645016880
           </Text>
         </View>
       </Page>

@@ -35,7 +35,7 @@ const Contact = () => {
     {
       icon: <FaPhone className="text-3xl text-[#d97757]" />,
       title: "Phone",
-      details: "+880 1234-567890",
+      details: "0164516880",
       link: "tel:+8801234567890",
     },
     {

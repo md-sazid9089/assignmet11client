@@ -147,9 +147,6 @@ const MyBookedTickets = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelBooking, setCancelBooking] = useState(null);
   const [cancelling, setCancelling] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelBooking, setCancelBooking] = useState(null);
-  const [cancelling, setCancelling] = useState(false);
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["userBookings"],
@@ -174,37 +171,6 @@ const MyBookedTickets = () => {
       return response.data.bookings || [];
     },
   });
-
-  // Cancel ticket function
-  const handleCancelTicket = async () => {
-    if (!cancelBooking) return;
-
-    setCancelling(true);
-    try {
-      const userId = localStorage.getItem('userId');
-      
-      console.log('🗑️ Cancelling booking:', cancelBooking.bookingId || cancelBooking._id);
-      
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/bookings/${cancelBooking._id}`,
-        { headers: { 'x-user-id': userId } }
-      );
-
-      toast.success(`Booking ${cancelBooking.bookingId || 'ticket'} cancelled successfully!`);
-      
-      // Refresh the bookings list
-      queryClient.invalidateQueries(['userBookings']);
-      
-      // Close modal and reset state
-      setShowCancelModal(false);
-      setCancelBooking(null);
-    } catch (error) {
-      console.error('❌ Error cancelling booking:', error);
-      toast.error(error.response?.data?.message || 'Failed to cancel booking');
-    } finally {
-      setCancelling(false);
-    }
-  };
 
   // Cancel ticket function
   const handleCancelTicket = async () => {
@@ -381,7 +347,7 @@ const MyBookedTickets = () => {
       { align: "center" }
     );
     doc.text(
-      "For any queries, contact: support@ticketbari.com | +880 1234-567890",
+      "For any queries, contact: support@ticketbari.com | 0164516880",
       105,
       242,
       { align: "center" }
@@ -497,18 +463,6 @@ const MyBookedTickets = () => {
                       ৳{booking.totalPrice}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Status:
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
-                        booking.status
-                      )}`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
                 </div>
 
                 {booking.status !== "rejected" &&
@@ -530,61 +484,31 @@ const MyBookedTickets = () => {
                     </div>
                   )}
 
-                <div className="space-y-2">
-                  {booking.status === "accepted" &&
-                    booking.ticketId?.departureDate &&
-                    new Date(booking.ticketId.departureDate) >
-                      new Date() && (
-                      <button
-                        onClick={() => setPaymentBooking(booking)}
-                        className="w-full flex items-center justify-center space-x-2 bg-primary text-white py-3 rounded-lg hover:bg-blue-600 transition font-semibold"
-                      >
-                        <FaCreditCard />
-                        <span>Pay Now</span>
-                      </button>
+                {/* PDF Download and Cancel buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <PDFDownloadLink
+                    document={<TicketPDF booking={booking} />}
+                    fileName={`uraan-ticket-${booking.bookingId || booking._id}.pdf`}
+                    className="flex items-center justify-center space-x-2 bg-[#0f172a] text-white py-3 rounded-lg hover:bg-slate-700 transition font-semibold text-sm"
+                  >
+                    {({ loading }) => (
+                      <>
+                        <FaDownload className={loading ? 'animate-spin' : ''} />
+                        <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                      </>
                     )}
-
-                  {/* PDF Download and Cancel buttons for accepted/paid bookings */}
-                  {(booking.status === "paid" || booking.status === "accepted") && (
-                    <div className="grid grid-cols-2 gap-2">
-                      <PDFDownloadLink
-                        document={<TicketPDF booking={booking} />}
-                        fileName={`uraan-ticket-${booking.bookingId || booking._id}.pdf`}
-                        className="flex items-center justify-center space-x-2 bg-[#0f172a] text-white py-3 rounded-lg hover:bg-slate-700 transition font-semibold text-sm"
-                      >
-                        {({ loading }) => (
-                          <>
-                            <FaDownload className={loading ? 'animate-spin' : ''} />
-                            <span>{loading ? 'Generating...' : 'Download PDF'}</span>
-                          </>
-                        )}
-                      </PDFDownloadLink>
-                      
-                      {booking.status !== "paid" && booking.status !== "rejected" && (
-                        <button
-                          onClick={() => {
-                            setCancelBooking(booking);
-                            setShowCancelModal(true);
-                          }}
-                          className="flex items-center justify-center space-x-2 border-2 border-[#b35a44] text-[#b35a44] py-3 rounded-lg hover:bg-[#b35a44] hover:text-white transition font-semibold text-sm"
-                        >
-                          <FaTrash />
-                          <span>Cancel</span>
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  </PDFDownloadLink>
                   
-                  {/* Legacy PDF download for paid tickets */}
-                  {booking.status === "paid" && (
-                    <button
-                      onClick={() => downloadPDF(booking)}
-                      className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-medium text-sm mt-1"
-                    >
-                      <FaDownload />
-                      <span>Legacy PDF</span>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      setCancelBooking(booking);
+                      setShowCancelModal(true);
+                    }}
+                    className="flex items-center justify-center space-x-2 border-2 border-[#b35a44] text-[#b35a44] py-3 rounded-lg hover:bg-[#b35a44] hover:text-white transition font-semibold text-sm"
+                  >
+                    <FaTrash />
+                    <span>Cancel</span>
+                  </button>
                 </div>
               </div>
             </div>
