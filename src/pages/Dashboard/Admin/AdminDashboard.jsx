@@ -565,8 +565,8 @@ const AdminDashboard = () => {
                   filteredBookings.length > 0 ? (
                     filteredBookings.map((booking) => (
                       <tr key={booking._id} className="hover:bg-slate-800 transition-colors">
-                        <td className="px-6 py-4 text-sm text-slate-300">
-                          {booking._id?.slice(-8)}
+                        <td className="px-6 py-4 text-sm font-mono text-slate-300">
+                          {booking.bookingId || booking._id?.slice(-8)}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-300">
                           {booking.userName || 'N/A'}

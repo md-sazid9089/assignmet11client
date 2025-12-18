@@ -13,7 +13,9 @@ import {
 } from "@stripe/react-stripe-js";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
-import { FaDownload, FaCreditCard } from "react-icons/fa";
+import { FaDownload, FaCreditCard, FaTimes, FaTrash } from "react-icons/fa";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import TicketPDF from "../../../components/TicketPDF";
 import { AuthContext } from "../../../providers/AuthProvider";
 
 const stripePromise = loadStripe(
@@ -142,6 +144,12 @@ const MyBookedTickets = () => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const [paymentBooking, setPaymentBooking] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelBooking, setCancelBooking] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelBooking, setCancelBooking] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["userBookings"],
@@ -166,6 +174,68 @@ const MyBookedTickets = () => {
       return response.data.bookings || [];
     },
   });
+
+  // Cancel ticket function
+  const handleCancelTicket = async () => {
+    if (!cancelBooking) return;
+
+    setCancelling(true);
+    try {
+      const userId = localStorage.getItem('userId');
+      
+      console.log('🗑️ Cancelling booking:', cancelBooking.bookingId || cancelBooking._id);
+      
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/bookings/${cancelBooking._id}`,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      toast.success(`Booking ${cancelBooking.bookingId || 'ticket'} cancelled successfully!`);
+      
+      // Refresh the bookings list
+      queryClient.invalidateQueries(['userBookings']);
+      
+      // Close modal and reset state
+      setShowCancelModal(false);
+      setCancelBooking(null);
+    } catch (error) {
+      console.error('❌ Error cancelling booking:', error);
+      toast.error(error.response?.data?.message || 'Failed to cancel booking');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  // Cancel ticket function
+  const handleCancelTicket = async () => {
+    if (!cancelBooking) return;
+
+    setCancelling(true);
+    try {
+      const userId = localStorage.getItem('userId');
+      
+      console.log('🗑️ Cancelling booking:', cancelBooking.bookingId || cancelBooking._id);
+      
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/bookings/${cancelBooking._id}`,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      toast.success(`Booking ${cancelBooking.bookingId || 'ticket'} cancelled successfully!`);
+      
+      // Refresh the bookings list
+      queryClient.invalidateQueries(['userBookings']);
+      
+      // Close modal and reset state
+      setShowCancelModal(false);
+      setCancelBooking(null);
+    } catch (error) {
+      console.error('❌ Error cancelling booking:', error);
+      toast.error(error.response?.data?.message || 'Failed to cancel booking');
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const downloadPDF = (booking) => {
     const doc = new jsPDF();
@@ -203,7 +273,7 @@ const MyBookedTickets = () => {
     doc.text("Booking ID:", 20, 80);
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, "bold");
-    doc.text(booking._id, 60, 80);
+    doc.text(booking.bookingId || booking._id, 60, 80);
 
     // Journey details
     doc.setFontSize(14);
@@ -394,9 +464,16 @@ const MyBookedTickets = () => {
               />
 
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-white">
-                  {booking.ticketTitle}
-                </h3>
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                    {booking.ticketTitle}
+                  </h3>
+                  {booking.bookingId && (
+                    <span className="text-xs font-mono bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                      {booking.bookingId}
+                    </span>
+                  )}
+                </div>
 
                 <p className="text-gray-600 dark:text-gray-400 mb-3">
                   {booking.ticketId?.from || booking.ticketDetails?.fromLocation || 'N/A'} →{" "}
@@ -467,13 +544,45 @@ const MyBookedTickets = () => {
                       </button>
                     )}
 
+                  {/* PDF Download and Cancel buttons for accepted/paid bookings */}
+                  {(booking.status === "paid" || booking.status === "accepted") && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <PDFDownloadLink
+                        document={<TicketPDF booking={booking} />}
+                        fileName={`uraan-ticket-${booking.bookingId || booking._id}.pdf`}
+                        className="flex items-center justify-center space-x-2 bg-[#0f172a] text-white py-3 rounded-lg hover:bg-slate-700 transition font-semibold text-sm"
+                      >
+                        {({ loading }) => (
+                          <>
+                            <FaDownload className={loading ? 'animate-spin' : ''} />
+                            <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                          </>
+                        )}
+                      </PDFDownloadLink>
+                      
+                      {booking.status !== "paid" && booking.status !== "rejected" && (
+                        <button
+                          onClick={() => {
+                            setCancelBooking(booking);
+                            setShowCancelModal(true);
+                          }}
+                          className="flex items-center justify-center space-x-2 border-2 border-[#b35a44] text-[#b35a44] py-3 rounded-lg hover:bg-[#b35a44] hover:text-white transition font-semibold text-sm"
+                        >
+                          <FaTrash />
+                          <span>Cancel</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Legacy PDF download for paid tickets */}
                   {booking.status === "paid" && (
                     <button
                       onClick={() => downloadPDF(booking)}
-                      className="w-full flex items-center justify-center space-x-2 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition font-semibold"
+                      className="w-full flex items-center justify-center space-x-2 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-medium text-sm mt-1"
                     >
                       <FaDownload />
-                      <span>Download Ticket</span>
+                      <span>Legacy PDF</span>
                     </button>
                   )}
                 </div>
@@ -520,7 +629,153 @@ const MyBookedTickets = () => {
           </div>
         </div>
       )}
-    </div>
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && cancelBooking && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-800">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                Cancel Booking
+              </h3>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <FaTimes className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                  ⚠️ Warning: This action cannot be undone
+                </p>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Are you sure you want to cancel this booking?
+              </p>
+              
+              <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+                <p className="font-semibold text-gray-800 dark:text-white mb-1">
+                  {cancelBooking.ticketTitle}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                  {cancelBooking.ticketId?.from || 'N/A'} → {cancelBooking.ticketId?.to || 'N/A'}
+                </p>
+                <p className="text-sm font-mono text-blue-600 dark:text-blue-400">
+                  Booking ID: {cancelBooking.bookingId || cancelBooking._id?.slice(-8)}
+                </p>
+                <p className="text-lg font-bold text-[#b35a44] mt-2">
+                  ৳{cancelBooking.totalPrice}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={handleCancelTicket}
+                disabled={cancelling}
+                className="flex-1 px-6 py-3 bg-[#b35a44] hover:bg-[#a04d39] text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {cancelling ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span>Cancelling...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaTrash />
+                    <span>Cancel Booking</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && cancelBooking && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-800">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                Cancel Booking
+              </h3>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <FaTimes className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                  ⚠️ Warning: This action cannot be undone
+                </p>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Are you sure you want to cancel this booking?
+              </p>
+              
+              <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+                <p className="font-semibold text-gray-800 dark:text-white mb-1">
+                  {cancelBooking.ticketTitle}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                  {cancelBooking.ticketId?.from || 'N/A'} → {cancelBooking.ticketId?.to || 'N/A'}
+                </p>
+                <p className="text-sm font-mono text-blue-600 dark:text-blue-400">
+                  Booking ID: {cancelBooking.bookingId || cancelBooking._id?.slice(-8)}
+                </p>
+                <p className="text-lg font-bold text-[#b35a44] mt-2">
+                  ৳{cancelBooking.totalPrice}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="flex-1 px-6 py-3 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={handleCancelTicket}
+                disabled={cancelling}
+                className="flex-1 px-6 py-3 bg-[#b35a44] hover:bg-[#a04d39] text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {cancelling ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span>Cancelling...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaTrash />
+                    <span>Cancel Booking</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}    </div>
   );
 };
 

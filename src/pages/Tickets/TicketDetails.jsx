@@ -144,9 +144,13 @@ const TicketDetails = () => {
       );
 
       console.log('✅ Booking created successfully:', response.data);
+      console.log('🎫 Booking ID:', response.data.booking?.bookingId);
+      
       setBookingQuantity(1);
       setPendingBookingData(null);
       navigate("/dashboard/user/bookings");
+      
+      return response.data; // Return response for PaymentModal to extract bookingId
     } catch (error) {
       console.error('❌ Booking error:', error);
       console.error('Error details:', error.response?.data);

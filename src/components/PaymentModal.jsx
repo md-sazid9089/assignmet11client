@@ -67,14 +67,18 @@ const PaymentModal = ({ isOpen, onClose, bookingData, onPaymentSuccess }) => {
         });
 
         // Call the actual booking API
-        await onPaymentSuccess({
+        const bookingResponse = await onPaymentSuccess({
           ...bookingData,
           paymentMethod: selectedMethod.name,
           transactionId: transactionId || `TXN-${Date.now()}`,
         });
 
+        // Extract bookingId from response
+        const bookingId = bookingResponse?.booking?.bookingId || 'N/A';
+        
         toast.success(
-          `Payment successful via ${selectedMethod.name}! Booking confirmed.`
+          `Payment successful via ${selectedMethod.name}! Booking ID: ${bookingId}`,
+          { duration: 5000 }
         );
         
         // Reset and close
