@@ -1,136 +1,295 @@
-import { useState, useEffect } from 'react';
-import api from '../../../config/api';
-import toast from 'react-hot-toast';
+import { Helmet } from "react-helmet-async";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { FaCheckCircle, FaTimesCircle, FaEye } from "react-icons/fa";
+import { useState } from "react";
 
 const ManageTickets = () => {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [viewTicket, setViewTicket] = useState(null);
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ["adminTickets"],
+    queryFn: async () => {
+      const userId = localStorage.getItem("userId");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/tickets/admin/all`,
+        { headers: { 'x-user-id': userId } }
+      );
+      return response.data.tickets || [];
+    },
+  });
 
-  const fetchTickets = async () => {
-    try {
-      const response = await api.get('/tickets/admin/all');
-      setTickets(response.data.tickets);
-    } catch (error) {
-      console.error('Error fetching tickets:', error);
-      toast.error('Failed to load tickets');
-    } finally {
-      setLoading(false);
-    }
+  const verifyMutation = useMutation({
+    mutationFn: async ({ id, verificationStatus }) => {
+      const userId = localStorage.getItem("userId");
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/tickets/admin/status`,
+        { ticketId: id, status: verificationStatus },
+        { headers: { 'x-user-id': userId } }
+      );
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      toast.success(
+        `Ticket ${
+          variables.verificationStatus === "approved" ? "approved" : "rejected"
+        } successfully!`
+      );
+      queryClient.invalidateQueries(["adminTickets"]);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Failed to update ticket");
+    },
+  });
+
+  const handleApprove = (id) => {
+    verifyMutation.mutate({ id, verificationStatus: "approved" });
   };
 
-  const handleStatusUpdate = async (ticketId, status) => {
-    try {
-      await api.put('/tickets/admin/status', { ticketId, status });
-      toast.success(`Ticket ${status} successfully`);
-      fetchTickets();
-    } catch (error) {
-      console.error('Error updating ticket:', error);
-      toast.error('Failed to update ticket');
-    }
+  const handleReject = (id) => {
+    verifyMutation.mutate({ id, verificationStatus: "rejected" });
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300';
-      case 'approved':
-        return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300';
-      case 'rejected':
-        return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300';
+      case "approved":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "rejected":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
       default:
-        return 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300';
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary-400"></div>
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold gradient-text mb-6">Manage Tickets</h2>
+    <div className=" ">
+      <Helmet>
+        <title>Manage Tickets - Uraan</title>
+      </Helmet>
 
-      <div className="card overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b-2 border-gray-200 dark:border-dark-lighter">
-              <th className="text-left py-3 px-4 font-semibold">Image</th>
-              <th className="text-left py-3 px-4 font-semibold">Title</th>
-              <th className="text-left py-3 px-4 font-semibold">Route</th>
-              <th className="text-left py-3 px-4 font-semibold">Type</th>
-              <th className="text-left py-3 px-4 font-semibold">Vendor</th>
-              <th className="text-left py-3 px-4 font-semibold">Price</th>
-              <th className="text-left py-3 px-4 font-semibold">Status</th>
-              <th className="text-left py-3 px-4 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tickets.map((ticket) => (
-              <tr
-                key={ticket._id}
-                className="border-b border-gray-200 dark:border-dark-lighter hover:bg-gray-50 dark:hover:bg-dark-lighter"
-              >
-                <td className="py-3 px-4">
-                  <img
-                    src={ticket.imageUrl}
-                    alt={ticket.title}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                </td>
-                <td className="py-3 px-4 font-semibold">{ticket.title}</td>
-                <td className="py-3 px-4">
-                  {ticket.from} → {ticket.to}
-                </td>
-                <td className="py-3 px-4">
-                  <span className="badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300">
-                    {ticket.transportType}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <div>
-                    <p className="font-semibold text-sm">{ticket.vendorName}</p>
-                    <p className="text-xs text-gray-500">{ticket.vendorEmail}</p>
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-primary-500 font-bold">
-                  ${ticket.pricePerUnit}
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`badge ${getStatusColor(ticket.verificationStatus)}`}>
-                    {ticket.verificationStatus}
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  {ticket.verificationStatus === 'pending' && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleStatusUpdate(ticket._id, 'approved')}
-                        className="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-full text-sm transition-all"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(ticket._id, 'rejected')}
-                        className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-full text-sm transition-all"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </td>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800 dark:text-white">
+        Manage Tickets
+      </h1>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl ">
+        {/* Scrollable table wrapper */}
+        <div className="overflow-x-auto">
+          <table className="">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Ticket
+                </th>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Vendor
+                </th>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Route
+                </th>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Price
+                </th>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Quantity
+                </th>
+                <th className="px-2 md:px-4 py-2 text-left dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Status
+                </th>
+                <th className="px-2 md:px-4 py-2 text-center dark:text-gray-300 text-xs md:text-base whitespace-nowrap">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tickets.map((ticket) => (
+                <tr
+                  key={ticket._id}
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <td className="px-2 md:px-4 py-2">
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                      <img
+                        src={ticket.imageUrl}
+                        alt={ticket.title}
+                        className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold dark:text-white text-xs md:text-base truncate max-w-[100px] md:max-w-[200px]">
+                          {ticket.title}
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                          {ticket.transportType}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-2 md:px-4 py-2">
+                    <p className="font-semibold dark:text-white text-xs md:text-base truncate max-w-[100px] md:max-w-none">
+                      {ticket.vendorName}
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate max-w-[120px] md:max-w-none">
+                      {ticket.vendorEmail}
+                    </p>
+                  </td>
+                  <td className="px-2 md:px-4 py-2 text-xs md:text-base dark:text-white whitespace-nowrap">
+                    {ticket.from} → {ticket.to}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 font-bold text-primary text-xs md:text-base whitespace-nowrap">
+                    ৳{ticket.pricePerUnit}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 text-xs md:text-base dark:text-white">
+                    {ticket.quantity}
+                  </td>
+                  <td className="px-2 md:px-4 py-2">
+                    <span
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusBadge(
+                        ticket.verificationStatus
+                      )}`}
+                    >
+                      {ticket.verificationStatus}
+                    </span>
+                  </td>
+                  <td className="px-2 md:px-4 py-2">
+                    <div className="flex justify-center space-x-1 md:space-x-2">
+                      <button
+                        onClick={() => setViewTicket(ticket)}
+                        className="p-1.5 md:p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        title="View Details"
+                      >
+                        <FaEye className="text-xs md:text-base" />
+                      </button>
+                      {ticket.verificationStatus === "pending" && (
+                        <>
+                          <button
+                            onClick={() => handleApprove(ticket._id)}
+                            disabled={verifyMutation.isPending}
+                            className="p-1.5 md:p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+                            title="Approve"
+                          >
+                            <FaCheckCircle className="text-xs md:text-base" />
+                          </button>
+                          <button
+                            onClick={() => handleReject(ticket._id)}
+                            disabled={verifyMutation.isPending}
+                            className="p-1.5 md:p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+                            title="Reject"
+                          >
+                            <FaTimesCircle className="text-xs md:text-base" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Ticket Modal */}
+      {viewTicket && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                Ticket Details
+              </h3>
+              <button
+                onClick={() => setViewTicket(null)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <img
+              src={viewTicket.imageUrl}
+              alt={viewTicket.title}
+              className="w-full h-64 object-cover rounded-lg mb-6"
+            />
+
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Title
+                  </p>
+                  <p className="font-semibold dark:text-white">
+                    {viewTicket.title}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Transport Type
+                  </p>
+                  <p className="font-semibold dark:text-white">
+                    {viewTicket.transportType}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    From
+                  </p>
+                  <p className="font-semibold dark:text-white">
+                    {viewTicket.from}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">To</p>
+                  <p className="font-semibold dark:text-white">
+                    {viewTicket.to}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Price
+                  </p>
+                  <p className="font-bold text-primary text-xl">
+                    ৳{viewTicket.pricePerUnit}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Quantity
+                  </p>
+                  <p className="font-semibold dark:text-white">
+                    {viewTicket.quantity}
+                  </p>
+                </div>
+              </div>
+
+              {viewTicket.perks && viewTicket.perks.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    Perks
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {viewTicket.perks.map((perk, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                      >
+                        {perk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

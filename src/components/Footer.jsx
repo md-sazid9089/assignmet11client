@@ -1,92 +1,231 @@
-import { Link } from 'react-router-dom';
-import { MdFlightTakeoff } from 'react-icons/md';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
-import { SiStripe } from 'react-icons/si';
+import { Link } from "react-router";
+import { useState } from "react";
+import logo from "../assets/logo.png";
+import { Linkedin, Facebook, Instagram, Send } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    setSubscribing(true);
+    
+    // Simulate newsletter subscription
+    setTimeout(() => {
+      toast.success("Successfully subscribed to our newsletter!");
+      setEmail("");
+      setSubscribing(false);
+    }, 1000);
+  };
+
   return (
-    <footer className="bg-white dark:bg-dark-card border-t border-gray-200 dark:border-dark-lighter mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* About */}
-          <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <MdFlightTakeoff className="text-3xl text-primary-500" />
-              <span className="text-2xl font-bold gradient-text">TicketBari</span>
+    <footer className="relative bg-[#020617] text-white border-t border-slate-800">
+      {/* Glassmorphism overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent backdrop-blur-lg pointer-events-none"></div>
+      
+      <div className="relative container mx-auto px-4 pt-16 pb-8">
+        {/* Main Footer Content - 4 Column Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          
+          {/* Column 1: Company Info & Branding */}
+          <div className="space-y-4">
+            <Link to="/" className="inline-flex items-center space-x-2 group">
+              <img
+                src={logo}
+                alt="Uraan Logo"
+                className="w-10 h-10 object-contain"
+              />
+              <span className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                Uraan
+              </span>
             </Link>
-            <p className="text-gray-600 dark:text-gray-400">
-              Your trusted platform for booking bus, train, launch, and flight tickets with ease.
+            
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Your trusted travel companion for seamless bus, train, launch & flight ticket bookings across Bangladesh. Journey with confidence.
             </p>
-            <div className="flex gap-4 mt-4">
-              <a href="#" className="text-primary-500 hover:text-secondary-500 transition-colors">
-                <FaFacebookF size={20} />
+
+            {/* Social Icons */}
+            <div className="flex items-center space-x-4 pt-2">
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
-              <a href="#" className="text-primary-500 hover:text-secondary-500 transition-colors">
-                <FaTwitter size={20} />
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
-              <a href="#" className="text-primary-500 hover:text-secondary-500 transition-colors">
-                <FaInstagram size={20} />
-              </a>
-              <a href="#" className="text-primary-500 hover:text-secondary-500 transition-colors">
-                <FaLinkedinIn size={20} />
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Column 2: Quick Links */}
           <div>
-            <h3 className="text-lg font-bold mb-4 gradient-text">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-primary-500 transition-colors">
+                <Link 
+                  to="/" 
+                  className="text-slate-400 hover:text-[#b35a44] transition-colors duration-300 text-sm flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-[#b35a44] mr-0 group-hover:mr-2 transition-all duration-300"></span>
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/tickets" className="text-gray-600 dark:text-gray-400 hover:text-primary-500 transition-colors">
+                <Link 
+                  to="/all-ticket" 
+                  className="text-slate-400 hover:text-[#b35a44] transition-colors duration-300 text-sm flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-[#b35a44] mr-0 group-hover:mr-2 transition-all duration-300"></span>
                   All Tickets
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="text-gray-600 dark:text-gray-400 hover:text-primary-500 transition-colors">
-                  Dashboard
+                <Link 
+                  to="/about" 
+                  className="text-slate-400 hover:text-[#b35a44] transition-colors duration-300 text-sm flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-[#b35a44] mr-0 group-hover:mr-2 transition-all duration-300"></span>
+                  About Us
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-primary-500 transition-colors">
-                  About Us
-                </a>
+                <Link 
+                  to="/contact" 
+                  className="text-slate-400 hover:text-[#b35a44] transition-colors duration-300 text-sm flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-[#b35a44] mr-0 group-hover:mr-2 transition-all duration-300"></span>
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/dashboard/user/profile" 
+                  className="text-slate-400 hover:text-[#b35a44] transition-colors duration-300 text-sm flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-[#b35a44] mr-0 group-hover:mr-2 transition-all duration-300"></span>
+                  My Profile
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Column 3: Services */}
           <div>
-            <h3 className="text-lg font-bold mb-4 gradient-text">Contact Info</h3>
-            <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-              <li>Email: support@ticketbari.com</li>
-              <li>Phone: +880 1234-567890</li>
-              <li>Address: Dhaka, Bangladesh</li>
-              <li>Hours: 24/7 Support</li>
+            <h3 className="text-lg font-semibold text-white mb-4">Our Services</h3>
+            <ul className="space-y-3">
+              <li className="text-slate-400 text-sm flex items-start">
+                <span className="w-1.5 h-1.5 bg-[#b35a44] rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                Bus Ticket Booking
+              </li>
+              <li className="text-slate-400 text-sm flex items-start">
+                <span className="w-1.5 h-1.5 bg-[#b35a44] rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                Train Reservations
+              </li>
+              <li className="text-slate-400 text-sm flex items-start">
+                <span className="w-1.5 h-1.5 bg-[#b35a44] rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                Launch Tickets
+              </li>
+              <li className="text-slate-400 text-sm flex items-start">
+                <span className="w-1.5 h-1.5 bg-[#b35a44] rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                Flight Bookings
+              </li>
+              <li className="text-slate-400 text-sm flex items-start">
+                <span className="w-1.5 h-1.5 bg-[#b35a44] rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                24/7 Customer Support
+              </li>
             </ul>
           </div>
 
-          {/* Payment Methods */}
+          {/* Column 4: Newsletter Subscription */}
           <div>
-            <h3 className="text-lg font-bold mb-4 gradient-text">Payment Methods</h3>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <SiStripe size={40} className="text-primary-500" />
-              <span className="font-semibold">Powered by Stripe</span>
-            </div>
-            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-              Secure payments with industry-standard encryption
+            <h3 className="text-lg font-semibold text-white mb-4">Stay Updated</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Subscribe to our newsletter for exclusive deals and travel updates.
+            </p>
+            
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#b35a44] focus:ring-1 focus:ring-[#b35a44] transition-all duration-300"
+                  disabled={subscribing}
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={subscribing}
+                className="w-full px-4 py-3 bg-[#b35a44] hover:bg-[#a04d39] text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span>{subscribing ? "Subscribing..." : "Subscribe"}</span>
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+
+            <p className="text-slate-500 text-xs mt-3">
+              We respect your privacy. Unsubscribe anytime.
             </p>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-200 dark:border-dark-lighter mt-8 pt-8 text-center text-gray-600 dark:text-gray-400">
-          <p>© 2025 TicketBari. All rights reserved.</p>
+        {/* Bottom Bar - Copyright & Links */}
+        <div className="border-t border-slate-800 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-slate-400 text-sm text-center md:text-left">
+              © {new Date().getFullYear()} Uraan. All rights reserved. Crafted with passion for travelers.
+            </p>
+            
+            <div className="flex items-center space-x-6">
+              <Link
+                to="/privacy-policy"
+                className="text-slate-400 hover:text-[#b35a44] text-sm transition-colors duration-300"
+              >
+                Privacy Policy
+              </Link>
+              <span className="text-slate-700">•</span>
+              <Link
+                to="/terms"
+                className="text-slate-400 hover:text-[#b35a44] text-sm transition-colors duration-300"
+              >
+                Terms of Service
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

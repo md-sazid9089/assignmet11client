@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Link, useNavigate } from 'react-router';
+import { useAuth } from '../../hooks/useAuth';
 import { FcGoogle } from 'react-icons/fc';
 import { FiMail, FiLock } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import logo from '../../assets/logo.png';
+
+const ADMIN_EMAIL = 'sazid98@gmail.com';
+const VENDOR_EMAIL = 'abrar98@gmail.com';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,15 +17,49 @@ const Login = () => {
   const { user, userRole, login, loginWithGoogle, resetPassword } = useAuth();
   const navigate = useNavigate();
 
-  // Helper function to redirect by role
-  const redirectByRole = (role) => {
-    console.log('🚀 Redirecting user with role:', role);
+  // Helper function to redirect by role with email-specific checks
+  const redirectByRole = (currentEmail, role) => {
+    console.log('🚀 Redirecting user with email:', currentEmail, 'role:', role);
+    
+    // Force admin routing for specific email (opens in NEW tab)
+    if (currentEmail === ADMIN_EMAIL) {
+      console.log('🔐 Admin email detected, opening admin dashboard in new tab');
+      const adminWindow = window.open('/dashboard/admin/dashboard', '_blank');
+      if (adminWindow) {
+        console.log('✅ Admin dashboard opened in new tab');
+        toast.success('Admin Dashboard opened in new tab!', { duration: 4000 });
+        navigate('/', { replace: true });
+      } else {
+        console.warn('⚠️ Popup blocked, redirecting in same window');
+        toast.error('Please allow popups for this site. Redirecting in same window...');
+        navigate('/dashboard/admin/dashboard', { replace: true });
+      }
+      return;
+    }
+    
+    // Force vendor routing for specific email (same tab)
+    if (currentEmail === VENDOR_EMAIL || role === 'vendor') {
+      console.log('🏪 Vendor email/role detected, redirecting to vendor dashboard in same tab');
+      toast.success('Welcome Vendor!', { duration: 3000 });
+      navigate('/dashboard/vendor/profile', { replace: true });
+      return;
+    }
+    
+    // Standard role-based routing for other users
     if (role === 'admin') {
-      navigate('/admin', { replace: true });
-    } else if (role === 'vendor') {
-      navigate('/dashboard/add-ticket', { replace: true });
+      const adminWindow = window.open('/dashboard/admin/dashboard', '_blank');
+      if (adminWindow) {
+        console.log('✅ Admin dashboard opened in new tab');
+        toast.success('Admin Dashboard opened in new tab!', { duration: 4000 });
+        navigate('/', { replace: true });
+      } else {
+        console.warn('⚠️ Popup blocked, redirecting in same window');
+        toast.error('Please allow popups for this site. Redirecting in same window...');
+        navigate('/dashboard/admin/dashboard', { replace: true });
+      }
     } else {
-      navigate('/dashboard/profile', { replace: true });
+      console.log('👤 User role detected, redirecting to user dashboard');
+      navigate('/dashboard/user/profile', { replace: true });
     }
   };
 
@@ -28,26 +67,86 @@ const Login = () => {
   useEffect(() => {
     console.log('👤 Login useEffect - user:', user?.email, 'role:', userRole);
     if (user && userRole) {
-      redirectByRole(userRole);
+      redirectByRole(user.email, userRole);
     }
   }, [user, userRole, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log('🔄 Starting login process for:', email);
+    
     try {
-      await login(email, password);
-      // userRole will be updated in AuthContext, triggering useEffect redirect
+      const result = await login(email, password);
+      console.log('✅ Login successful for:', email);
+      console.log('📊 Login result:', result);
+      
+      // Force admin role check for specific email
+      if (email === ADMIN_EMAIL) {
+        console.log('🔐 Admin email login detected, forcing redirect');
+        // Redirect will happen via useEffect when userRole updates
+      }
+      
+      // Force vendor role check for specific email
+      if (email === VENDOR_EMAIL) {
+        console.log('🏪 Vendor email login detected, forcing redirect');
+        // Redirect will happen via useEffect when userRole updates
+      }
+      
     } catch (error) {
-      console.error(error);
+      console.error('❌ Login error:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
+      
+      // Detailed error messages
+      if (error.response?.status === 500) {
+        toast.error('Server error: Please check backend logs', { duration: 5000 });
+      } else if (error.code === 'auth/wrong-password') {
+        toast.error('Incorrect password');
+      } else if (error.code === 'auth/user-not-found') {
+        toast.error('No account found with this email');
+      } else {
+        toast.error(error.message || 'Login failed');
+      }
     }
   };
 
   const handleGoogleLogin = async () => {
+    console.log('🔄 Starting Google login process');
+    
     try {
-      await loginWithGoogle();
-      // userRole will be updated in AuthContext, triggering useEffect redirect
+      const result = await loginWithGoogle();
+      console.log('✅ Google login successful for:', result?.user?.email);
+      console.log('📊 Google login result:', result);
+      
+      // Force admin role check for specific email
+      if (result?.user?.email === ADMIN_EMAIL) {
+        console.log('🔐 Admin email Google login detected');
+      }
+      
+      // Force vendor role check for specific email
+      if (result?.user?.email === VENDOR_EMAIL) {
+        console.log('🏪 Vendor email Google login detected');
+      }
+      
     } catch (error) {
-      console.error(error);
+      console.error('❌ Google login error:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      if (error.response?.status === 500) {
+        toast.error('Server error: Please check backend logs', { duration: 5000 });
+      } else {
+        toast.error(error.message || 'Google login failed');
+      }
     }
   };
 

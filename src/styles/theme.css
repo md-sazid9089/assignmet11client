@@ -1,0 +1,307 @@
+/**
+ * SLATE & CLAY DESIGN SYSTEM
+ * Global Theme Variables and Utilities
+ * 
+ * Color Philosophy:
+ * - Slate: Professional, trustworthy foundation (backgrounds, text, borders)
+ * - Clay: Warm, inviting accents (CTAs, highlights, interactive elements)
+ * 
+ * Context-Specific Usage:
+ * - Homepage: Light Slate (#f8fafc) backgrounds + Clay accents for welcoming feel
+ * - Vendor Dashboard: White/Slate 50 for clean professional workspace
+ * - Admin Panel: Deep Slate (#0f172a) sidebar for authoritative, focused UI
+ */
+
+:root {
+  /* ====================================
+     CORE SLATE COLORS (Base/Structure)
+     ==================================== */
+  --slate-tint: #f8fafc;        /* Slate 50 - Lightest backgrounds */
+  --slate-100: #f1f5f9;          /* Very light backgrounds */
+  --slate-200: #e2e8f0;          /* Borders, dividers */
+  --slate-300: #cbd5e1;          /* Subtle borders */
+  --slate-400: #94a3b8;          /* Disabled states */
+  --slate-500: #64748b;          /* Secondary text, icons */
+  --slate-600: #475569;          /* Body text */
+  --slate-muted: #334155;        /* Slate 700 - Strong text */
+  --slate-800: #1e293b;          /* Dark surfaces */
+  --slate-deep: #0f172a;         /* Slate 900 - Darkest backgrounds */
+  --slate-950: #020617;          /* Nearly black */
+
+  /* ====================================
+     CORE CLAY COLORS (Accent/Action)
+     ==================================== */
+  --clay-50: #fef6f3;            /* Lightest clay tint */
+  --clay-100: #fde9e2;           /* Very light clay */
+  --clay-200: #fbd2c5;           /* Light clay backgrounds */
+  --clay-300: #f7ad98;           /* Soft accents */
+  --clay-light: #d97757;         /* Clay 400/500 - Primary accent */
+  --clay-primary: #b35a44;       /* Clay 600 - Main action color */
+  --clay-700: #8e4636;           /* Hover states */
+  --clay-800: #743a2e;           /* Pressed states */
+  --clay-900: #5f3228;           /* Darkest clay */
+
+  /* ====================================
+     SEMANTIC MAPPINGS
+     ==================================== */
+  
+  /* Primary Action Colors */
+  --color-primary: var(--clay-primary);
+  --color-primary-hover: var(--clay-700);
+  --color-primary-active: var(--clay-800);
+  --color-primary-light: var(--clay-light);
+
+  /* Text Colors */
+  --text-primary: var(--slate-deep);
+  --text-secondary: var(--slate-muted);
+  --text-muted: var(--slate-500);
+  --text-on-dark: var(--slate-tint);
+  --text-on-clay: #ffffff;
+
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: var(--slate-tint);
+  --bg-tertiary: var(--slate-100);
+  --bg-dark: var(--slate-deep);
+  --bg-dark-surface: var(--slate-800);
+
+  /* Border Colors */
+  --border-light: var(--slate-200);
+  --border-medium: var(--slate-300);
+  --border-strong: var(--slate-muted);
+
+  /* ====================================
+     HOMEPAGE THEME (Light & Welcoming)
+     ==================================== */
+  --homepage-bg: var(--slate-tint);
+  --homepage-surface: #ffffff;
+  --homepage-text: var(--slate-deep);
+  --homepage-text-muted: var(--slate-500);
+  --homepage-accent: var(--clay-primary);
+  --homepage-accent-hover: var(--clay-700);
+  --homepage-border: var(--slate-200);
+
+  /* ====================================
+     VENDOR DASHBOARD THEME (Professional)
+     ==================================== */
+  --vendor-bg: #ffffff;
+  --vendor-bg-alt: var(--slate-tint);
+  --vendor-surface: #ffffff;
+  --vendor-text: var(--slate-deep);
+  --vendor-text-muted: var(--slate-500);
+  --vendor-accent: var(--clay-primary);
+  --vendor-accent-hover: var(--clay-700);
+  --vendor-border: var(--slate-200);
+  --vendor-sidebar-bg: var(--slate-tint);
+
+  /* ====================================
+     ADMIN PANEL THEME (Authoritative)
+     ==================================== */
+  --admin-bg: var(--slate-deep);
+  --admin-surface: var(--slate-800);
+  --admin-surface-hover: var(--slate-muted);
+  --admin-text: var(--slate-200);
+  --admin-text-muted: var(--slate-400);
+  --admin-accent: var(--clay-primary);
+  --admin-accent-hover: var(--clay-700);
+  --admin-border: var(--slate-muted);
+  --admin-sidebar-bg: var(--slate-deep);
+
+  /* ====================================
+     SHADOWS & EFFECTS
+     ==================================== */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+  --shadow-clay: 0 4px 14px 0 rgba(179, 90, 68, 0.25);
+  --shadow-clay-lg: 0 10px 40px 0 rgba(179, 90, 68, 0.35);
+
+  /* Gradients */
+  --gradient-clay: linear-gradient(135deg, var(--clay-light) 0%, var(--clay-primary) 100%);
+  --gradient-slate: linear-gradient(135deg, var(--slate-800) 0%, var(--slate-deep) 100%);
+  --gradient-admin: linear-gradient(135deg, var(--slate-deep) 0%, var(--slate-800) 50%, var(--slate-muted) 100%);
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+/* ====================================
+   DARK MODE OVERRIDES
+   ==================================== */
+.dark {
+  --text-primary: var(--slate-tint);
+  --text-secondary: var(--slate-200);
+  --text-muted: var(--slate-400);
+
+  --bg-primary: var(--slate-deep);
+  --bg-secondary: var(--slate-800);
+  --bg-tertiary: var(--slate-muted);
+
+  --border-light: var(--slate-muted);
+  --border-medium: var(--slate-600);
+  --border-strong: var(--slate-500);
+
+  --homepage-bg: var(--slate-deep);
+  --homepage-surface: var(--slate-800);
+  --homepage-text: var(--slate-tint);
+  --homepage-border: var(--slate-muted);
+
+  --vendor-bg: var(--slate-deep);
+  --vendor-bg-alt: var(--slate-800);
+  --vendor-surface: var(--slate-800);
+  --vendor-text: var(--slate-tint);
+  --vendor-border: var(--slate-muted);
+  --vendor-sidebar-bg: var(--slate-800);
+}
+
+/* ====================================
+   UTILITY CLASSES
+   ==================================== */
+
+/* Button Styles */
+.btn-clay-primary {
+  background: var(--gradient-clay);
+  color: var(--text-on-clay);
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: var(--shadow-clay);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-clay-primary:hover {
+  background: var(--clay-primary);
+  box-shadow: var(--shadow-clay-lg);
+  transform: translateY(-1px);
+}
+
+.btn-clay-primary:active {
+  background: var(--clay-700);
+  transform: translateY(0);
+}
+
+.btn-clay-secondary {
+  background: var(--clay-100);
+  color: var(--clay-primary);
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-clay-secondary:hover {
+  background: var(--clay-200);
+  color: var(--clay-700);
+}
+
+.btn-slate {
+  background: var(--slate-600);
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-slate:hover {
+  background: var(--slate-muted);
+}
+
+/* Card Styles */
+.card-homepage {
+  background: var(--homepage-surface);
+  border: 1px solid var(--homepage-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+}
+
+.card-homepage:hover {
+  box-shadow: var(--shadow-clay);
+  transform: translateY(-2px);
+}
+
+.card-vendor {
+  background: var(--vendor-surface);
+  border: 1px solid var(--vendor-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.card-admin {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Layout Backgrounds */
+.homepage-layout {
+  background: var(--homepage-bg);
+  color: var(--homepage-text);
+}
+
+.vendor-layout {
+  background: var(--vendor-bg);
+  color: var(--vendor-text);
+}
+
+.admin-layout {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+/* Sidebar Styles */
+.sidebar-vendor {
+  background: var(--vendor-sidebar-bg);
+  border-right: 1px solid var(--vendor-border);
+}
+
+.sidebar-admin {
+  background: var(--admin-sidebar-bg);
+  border-right: 1px solid var(--admin-border);
+}
+
+/* Text Utilities */
+.text-clay-accent {
+  color: var(--clay-primary);
+}
+
+.text-slate-primary {
+  color: var(--slate-deep);
+}
+
+.text-slate-muted {
+  color: var(--slate-500);
+}
+
+/* Background Utilities */
+.bg-clay-gradient {
+  background: var(--gradient-clay);
+}
+
+.bg-slate-gradient {
+  background: var(--gradient-slate);
+}
+
+.bg-admin-gradient {
+  background: var(--gradient-admin);
+}
+
+/* Interactive States */
+.interactive-clay {
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-clay:hover {
+  color: var(--clay-primary);
+}
+
+.interactive-clay:active {
+  color: var(--clay-700);
+}

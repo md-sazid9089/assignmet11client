@@ -1,183 +1,285 @@
-import { Link, NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
-import { MdFlightTakeoff } from 'react-icons/md';
+import { useContext, useState, useRef, useEffect } from "react";
+import { Link, NavLink, useLocation } from "react-router";
+import { AuthContext } from "../providers/AuthProvider";
+import { FaBars, FaTimes, FaUser } from "react-icons/fa";
+import toast from "react-hot-toast";
+import axios from "axios";
+import logo from "../assets/logo.png";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const { darkMode, toggleTheme } = useTheme();
+  const { user, logOut } = useContext(AuthContext);
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const avatarRef = useRef(null);
 
-  const navLinks = [
-    { path: '/', label: 'Home' },
-    ...(user ? [
-      { path: '/tickets', label: 'All Tickets' },
-      { path: '/dashboard', label: 'Dashboard' },
-    ] : []),
-  ];
+  const isHomePage = location.pathname === '/';
+
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserRole = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/${user.email}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setUserRole(res.data.role || "user");
+      } catch {
+        setUserRole("user");
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
+
+  const handleLogout = () => {
+    logOut()
+      .then(() => {
+        toast.success("Logged out");
+        setIsAvatarOpen(false);
+        setIsMenuOpen(false);
+      })
+      .catch(() => toast.error("Logout failed"));
+  };
+
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target)) {
+        setIsAvatarOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
+
+  const linkClass = ({ isActive }) =>
+    `px-4 py-2 font-medium transition-all duration-300 ${
+      isActive
+        ? "text-[#b35a44] dark:text-[#d97757] font-semibold border-b-2 border-[#b35a44] dark:border-[#d97757]"
+        : (isHomePage && !isScrolled)
+          ? "text-white hover:text-[#d97757] drop-shadow-lg"
+          : "text-slate-300 hover:text-[#d97757]"
+    }`;
+
+  const navLinks = (
+    <>
+      <NavLink to="/" className={linkClass}>
+        Home
+      </NavLink>
+      {user && (
+        <NavLink to="/all-ticket" className={linkClass}>
+          All Tickets
+        </NavLink>
+      )}
+      <NavLink to="/about" className={linkClass}>
+        About
+      </NavLink>
+      <NavLink to="/contact" className={linkClass}>
+        Contact
+      </NavLink>
+    </>
+  );
 
   return (
-    <nav className="sticky top-0 z-40 bg-white dark:bg-dark-card shadow-soft">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${
+      isHomePage && !isScrolled
+        ? 'bg-transparent border-transparent' 
+        : 'bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-700 shadow-lg'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="h-20 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <MdFlightTakeoff className="text-3xl text-primary-500 group-hover:text-secondary-500 transition-colors" />
-            <span className="text-2xl font-bold gradient-text">TicketBari</span>
+          <Link to="/" className="flex items-center group">
+            <img src={logo} alt="Uraan Logo" className="w-24 -mt-5 transition-transform group-hover:scale-105" />
+            <span className={`text-2xl lg:text-3xl -mb-10 -ml-10 -mt-8 font-bold transition-all duration-300 ${
+              (isHomePage && !isScrolled) ? 'text-white drop-shadow-lg' : 'text-[#b35a44] dark:text-[#d97757]'
+            }`}>
+              Uraan
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                className={({ isActive }) =>
-                  `font-semibold transition-colors ${
-                    isActive
-                      ? 'text-primary-500 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400'
-                  }`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-6">{navLinks}</div>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-primary-100 dark:hover:bg-dark-lighter transition-colors"
-            >
-              {darkMode ? (
-                <FiSun className="text-xl text-primary-400" />
-              ) : (
-                <FiMoon className="text-xl text-primary-500" />
-              )}
-            </button>
+          {/* Desktop Right */}
+          <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
 
-            {/* Auth Buttons */}
             {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              <div ref={avatarRef} className="relative">
+                <button 
+                  onClick={() => setIsAvatarOpen(!isAvatarOpen)}
+                  className="transition-transform hover:scale-105"
                 >
                   <img
-                    src={user.photoURL || 'https://via.placeholder.com/40'}
-                    alt={user.displayName}
-                    className="w-10 h-10 rounded-full border-2 border-primary-400"
+                    src={user.photoURL || "https://i.ibb.co/2Pz4LgR/user.png"}
+                    className="w-10 h-10 rounded-full ring-2 ring-clay-500 dark:ring-clay-600 shadow-clay"
                   />
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    {user.displayName}
-                  </span>
                 </button>
 
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-card rounded-2xl shadow-soft-lg py-2">
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 hover:bg-primary-50 dark:hover:bg-dark-lighter transition-colors"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setIsDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-primary-50 dark:hover:bg-dark-lighter transition-colors text-red-500"
-                    >
-                      Logout
-                    </button>
+                {isAvatarOpen && (
+                  <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-800 rounded-2xl shadow-slate-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div className="p-4 bg-slate-gradient border-b border-slate-700">
+                      <p className="font-semibold text-white">
+                        {user.displayName}
+                      </p>
+                      <p className="text-sm text-slate-300">
+                        {user.email}
+                      </p>
+                      <span className="inline-block mt-2 px-3 py-1 text-xs bg-clay-500 text-white rounded-full capitalize shadow-clay">
+                        {userRole}
+                      </span>
+                    </div>
+
+                    <div className="p-2 space-y-1">
+                      <Link
+                        to={`/dashboard/${userRole}/profile`}
+                        onClick={() => setIsAvatarOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 transition-colors"
+                      >
+                        <FaUser className="text-clay-500" /> Dashboard
+                      </Link>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex gap-4">
-                <Link to="/login" className="btn-secondary px-5 py-2">
+              <Link
+                to="/login"
+                className="cursor-pointer relative bg-white/10 py-2 rounded-full min-w-[8.5rem] min-h-[2.92rem] group max-w-full flex items-center justify-start hover:bg-[#d97757] transition-all duration-[3000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] shadow-[inset_1px_2px_5px_#00000080]"
+              >
+                <div className="absolute flex px-1 py-0.5 justify-start items-center inset-0">
+                  <div className="w-[0%] group-hover:w-full transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"></div>
+                  <div className="rounded-full shrink-0 flex justify-center items-center shadow-[inset_1px_-1px_3px_0_black] h-full aspect-square bg-[#b35a44] transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:bg-black">
+                    <div className="size-[0.8rem] text-black group-hover:text-white group-hover:-rotate-45 transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 16 16"
+                        height="100%"
+                        width="100%"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M12.175 9H0V7H12.175L6.575 1.4L8 0L16 8L8 16L6.575 14.6L12.175 9Z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="pl-[3.4rem] pr-[1.1rem] group-hover:pl-[1.1rem] group-hover:pr-[3.4rem] transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:text-black text-white font-semibold">
                   Login
-                </Link>
-                <Link to="/register" className="btn-primary px-5 py-2">
-                  Register
-                </Link>
-              </div>
+                </div>
+              </Link>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-2xl text-gray-700 dark:text-gray-300"
-          >
-            {isMenuOpen ? <FiX /> : <FiMenu />}
-          </button>
+          {/* Mobile Controls */}
+          <div className="md:hidden flex items-center gap-3">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className={`transition-all duration-300 ${
+                (isHomePage && !isScrolled) ? 'text-white hover:text-[#d97757] drop-shadow-lg' : 'text-slate-300 hover:text-[#d97757]'
+              }`}
+            >
+              {isMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                className={({ isActive }) =>
-                  `block font-semibold transition-colors ${
-                    isActive ? 'text-primary-500' : 'text-gray-700 dark:text-gray-300'
-                  }`
-                }
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-
-            <button onClick={toggleTheme} className="flex items-center gap-2">
-              {darkMode ? <FiSun /> : <FiMoon />}
-              <span>Toggle Theme</span>
-            </button>
+          <div className="md:hidden pb-6 pt-4 space-y-4 bg-slate-900/98 backdrop-blur-xl">
+            <div className="flex flex-col gap-2">{navLinks}</div>
 
             {user ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
+              <div className="pt-4 border-t border-slate-700 space-y-4">
+                <div className="flex items-center gap-3 px-4">
                   <img
-                    src={user.photoURL || 'https://via.placeholder.com/40'}
-                    alt={user.displayName}
-                    className="w-10 h-10 rounded-full"
+                    src={user.photoURL || "https://i.ibb.co/2Pz4LgR/user.png"}
+                    className="w-12 h-12 rounded-full ring-2 ring-[#b35a44] shadow-clay"
                   />
-                  <span className="font-semibold">{user.displayName}</span>
+                  <div>
+                    <p className="font-semibold leading-tight text-white">
+                      {user.displayName}
+                    </p>
+                    <p className="text-sm text-slate-300">
+                      {user.email}
+                    </p>
+                    <span className="inline-block mt-1 px-3 py-0.5 text-xs bg-[#b35a44] text-white rounded-full capitalize">
+                      {userRole}
+                    </span>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    logout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-red-500 font-semibold"
-                >
-                  Logout
-                </button>
+
+                <div className="space-y-2">
+                  <Link
+                    to={`/dashboard/${userRole}/profile`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-2 rounded-lg hover:bg-slate-800 text-white transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="space-y-2">
-                <Link
-                  to="/login"
-                  className="block btn-secondary text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="cursor-pointer relative bg-white/10 py-2 rounded-full min-w-[8.5rem] min-h-[2.92rem] group max-w-full flex items-center justify-start hover:bg-[#d97757] transition-all duration-[3000ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] shadow-[inset_1px_2px_5px_#00000080] mx-auto"
+              >
+                <div className="absolute flex px-1 py-0.5 justify-start items-center inset-0">
+                  <div className="w-[0%] group-hover:w-full transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"></div>
+                  <div className="rounded-full shrink-0 flex justify-center items-center shadow-[inset_1px_-1px_3px_0_black] h-full aspect-square bg-[#b35a44] transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:bg-black">
+                    <div className="size-[0.8rem] text-black group-hover:text-white group-hover:-rotate-45 transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 16 16"
+                        height="100%"
+                        width="100%"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M12.175 9H0V7H12.175L6.575 1.4L8 0L16 8L8 16L6.575 14.6L12.175 9Z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="pl-[3.4rem] pr-[1.1rem] group-hover:pl-[1.1rem] group-hover:pr-[3.4rem] transition-all duration-[3500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:text-black text-white font-semibold">
                   Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="block btn-primary text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Register
-                </Link>
-              </div>
+                </div>
+              </Link>
             )}
           </div>
         )}

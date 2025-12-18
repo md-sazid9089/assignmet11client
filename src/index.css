@@ -1,35 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    @apply bg-pastel-pink dark:bg-dark-bg text-gray-800 dark:text-gray-100 transition-colors duration-300;
+/* Tailwind v4: define what `dark:` means for this app.
+  We support both the `dark` class and DaisyUI's `data-theme="dark"`. */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, cupcake;
+}
+
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Admin Dark Theme - Force dark background for admin routes */
+body.admin-dark-theme {
+  background-color: #0f172a !important;
+  min-height: 100vh;
+}
+
+/* Ensure html also has dark background for admin */
+html:has(body.admin-dark-theme) {
+  background-color: #0f172a !important;
+}
+
+/* Payment Modal Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-gradient-primary hover:bg-gradient-primary-hover text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-secondary {
-    @apply bg-white dark:bg-dark-card text-primary-500 dark:text-primary-300 font-semibold py-3 px-6 rounded-full border-2 border-primary-400 hover:bg-primary-50 dark:hover:bg-dark-lighter transition-all duration-300;
-  }
-
-  .card {
-    @apply bg-white dark:bg-dark-card rounded-3xl shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-dark-lighter bg-white dark:bg-dark-card text-gray-800 dark:text-gray-100 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-600 outline-none transition-all duration-300;
-  }
-
-  .badge {
-    @apply inline-block px-3 py-1 text-sm font-semibold rounded-full;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent;
-  }
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
 }

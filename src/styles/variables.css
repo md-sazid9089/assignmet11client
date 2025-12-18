@@ -1,0 +1,140 @@
+/**
+ * Slate & Clay Theme - CSS Custom Properties
+ * Use these variables in CSS modules or inline styles if needed
+ */
+
+:root {
+  /* Slate Colors - Primary/Backgrounds */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+
+  /* Clay Colors - Accents/Actions */
+  --clay-50: #fef6f3;
+  --clay-100: #fde9e2;
+  --clay-200: #fbd2c5;
+  --clay-300: #f7ad98;
+  --clay-400: #f1806a;
+  --clay-500: #d97757;  /* Primary clay */
+  --clay-600: #b35a44;  /* Hover state */
+  --clay-700: #8e4636;
+  --clay-800: #743a2e;
+  --clay-900: #5f3228;
+
+  /* Semantic Colors */
+  --color-primary: var(--clay-500);
+  --color-primary-hover: var(--clay-600);
+  --color-secondary: var(--slate-600);
+  --color-secondary-hover: var(--slate-700);
+
+  /* Text Colors */
+  --text-primary: var(--slate-900);
+  --text-secondary: var(--slate-500);
+  --text-muted: var(--slate-400);
+  --text-on-clay: #ffffff;
+
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: var(--slate-50);
+  --bg-tertiary: var(--slate-100);
+
+  /* Border Colors */
+  --border-light: var(--slate-200);
+  --border-medium: var(--slate-300);
+  --border-dark: var(--slate-400);
+
+  /* Admin Panel Specific */
+  --admin-bg: var(--slate-900);
+  --admin-surface: var(--slate-800);
+  --admin-border: var(--slate-700);
+  --admin-text: var(--slate-200);
+  --admin-text-muted: var(--slate-500);
+
+  /* Shadows */
+  --shadow-clay: 0 4px 14px 0 rgba(217, 119, 87, 0.25);
+  --shadow-clay-lg: 0 10px 40px 0 rgba(217, 119, 87, 0.35);
+  --shadow-slate: 0 4px 14px 0 rgba(30, 41, 59, 0.15);
+  --shadow-slate-lg: 0 10px 40px 0 rgba(30, 41, 59, 0.25);
+
+  /* Gradients */
+  --gradient-clay: linear-gradient(135deg, #d97757 0%, #b35a44 100%);
+  --gradient-slate: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  --gradient-admin: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  --gradient-user: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Dark Mode */
+[data-theme="dark"], .dark {
+  /* Text Colors for Dark Mode */
+  --text-primary: var(--slate-50);
+  --text-secondary: var(--slate-400);
+  --text-muted: var(--slate-500);
+
+  /* Background Colors for Dark Mode */
+  --bg-primary: var(--slate-900);
+  --bg-secondary: var(--slate-800);
+  --bg-tertiary: var(--slate-700);
+
+  /* Border Colors for Dark Mode */
+  --border-light: var(--slate-700);
+  --border-medium: var(--slate-600);
+  --border-dark: var(--slate-500);
+}
+
+/* Utility Classes (if not using Tailwind) */
+.btn-clay {
+  background: var(--gradient-clay);
+  color: var(--text-on-clay);
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-clay);
+  transition: all 0.3s ease;
+}
+
+.btn-clay:hover {
+  box-shadow: var(--shadow-clay-lg);
+  transform: scale(1.05);
+}
+
+.btn-slate {
+  background: var(--slate-600);
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-slate:hover {
+  background: var(--slate-700);
+  transform: scale(1.02);
+}
+
+.card-slate {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-slate);
+  padding: 1.5rem;
+}
+
+.admin-panel {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
