@@ -137,20 +137,37 @@ const TicketDetails = () => {
 
       console.log('📝 Creating booking with payment data:', paymentData);
 
-      const response = await axios.post(
+      // Step 1: Create the booking
+      const bookingResponse = await axios.post(
         `${import.meta.env.VITE_API_URL}/bookings`,
         paymentData,
         { headers: { 'x-user-id': userId } }
       );
 
-      console.log('✅ Booking created successfully:', response.data);
-      console.log('🎫 Booking ID:', response.data.booking?.bookingId);
+      console.log('✅ Booking created successfully:', bookingResponse.data);
+      console.log('🎫 Booking ID:', bookingResponse.data.booking?.bookingId);
+
+      // Step 2: Confirm the booking and create transaction record
+      const confirmationData = {
+        bookingId: bookingResponse.data.booking._id,
+        paymentMethod: paymentData.paymentMethod
+      };
+
+      console.log('💳 Confirming booking payment:', confirmationData);
+
+      const confirmResponse = await axios.post(
+        `${import.meta.env.VITE_API_URL}/bookings/confirm`,
+        confirmationData,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      console.log('✅ Booking confirmed and transaction recorded:', confirmResponse.data);
       
       setBookingQuantity(1);
       setPendingBookingData(null);
       navigate("/dashboard/user/bookings");
       
-      return response.data; // Return response for PaymentModal to extract bookingId
+      return bookingResponse.data; // Return response for PaymentModal to extract bookingId
     } catch (error) {
       console.error('❌ Booking error:', error);
       console.error('Error details:', error.response?.data);

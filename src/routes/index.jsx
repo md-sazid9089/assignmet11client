@@ -25,6 +25,8 @@ import AdminProfile from "../pages/dashboard/admin/AdminProfile";
 import AdvertiseTickets from "../pages/dashboard/admin/AdvertiseTickets";
 import AdminDashboard from "../pages/dashboard/admin/AdminDashboard";
 import MyAddedTickets from "../pages/dashboard/vendor/MyAddedTickets";
+import AdminTransactionHistory from "../pages/dashboard/admin/TransactionHistory";
+import VendorTransactionHistory from "../pages/dashboard/vendor/TransactionHistory";
 
 export const router = createBrowserRouter([
   {
@@ -148,6 +150,14 @@ export const router = createBrowserRouter([
           </RoleBasedRoute>
         ),
       },
+      {
+        path: "vendor/transactions",
+        element: (
+          <RoleBasedRoute allowedRoles={["vendor"]}>
+            <VendorTransactionHistory />
+          </RoleBasedRoute>
+        ),
+      },
       // Admin Routes
       {
         path: "admin/dashboard",
@@ -186,6 +196,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleBasedRoute allowedRoles={["admin"]}>
             <AdvertiseTickets />
+          </RoleBasedRoute>
+        ),
+      },
+      {
+        path: "admin/transactions",
+        element: (
+          <RoleBasedRoute allowedRoles={["admin"]}>
+            <AdminTransactionHistory />
           </RoleBasedRoute>
         ),
       },
