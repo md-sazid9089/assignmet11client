@@ -28,6 +28,13 @@ const AdminDashboard = () => {
     totalRevenue: 0,
     activeUsers: 0,
     totalBookings: 0,
+    approvedTickets: 0,
+    pendingTickets: 0,
+    vendors: 0,
+    regularUsers: 0,
+    paidBookings: 0,
+    successfulTransactions: 0,
+    totalTransactions: 0
   });
 
   // Data State
@@ -121,40 +128,72 @@ const AdminDashboard = () => {
     try {
       const userId = localStorage.getItem('userId');
       
-      const [ticketsRes, bookingsRes, usersRes] = await Promise.all([
+      const [ticketsRes, bookingsRes, usersRes, transactionsRes] = await Promise.all([
         axios.get(`${API_URL}/tickets/admin/all`, {
           headers: { 'x-user-id': userId }
         }),
-        axios.get(`${API_URL}/bookings`, {
+        axios.get(`${API_URL}/bookings/admin/all`, {
           headers: { 'x-user-id': userId }
         }),
         axios.get(`${API_URL}/users/all`, {
           headers: { 'x-user-id': userId }
         }),
+        axios.get(`${API_URL}/transactions/admin/all`, {
+          headers: { 'x-user-id': userId }
+        })
       ]);
 
       console.log('📊 Admin Stats Data:');
       console.log('Tickets:', ticketsRes.data.tickets?.length || 0);
       console.log('Bookings:', bookingsRes.data.data?.length || 0);
       console.log('Users:', usersRes.data.users?.length || 0);
+      console.log('Transactions:', transactionsRes.data.transactions?.length || 0);
 
       const allUsers = usersRes.data.users || [];
+      const allTransactions = transactionsRes.data.transactions || [];
+      const allTickets = ticketsRes.data.tickets || [];
+      const allBookings = bookingsRes.data.data || [];
+      
+      // Calculate real revenue from successful transactions
+      const totalRevenue = allTransactions
+        .filter(transaction => transaction.status === 'Success')
+        .reduce((sum, transaction) => sum + (transaction.amount || 0), 0) || 0;
+      
+      // Count users by role
       const vendors = allUsers.filter(user => user.role === 'vendor');
+      const regularUsers = allUsers.filter(user => user.role === 'user');
+      const admins = allUsers.filter(user => user.role === 'admin');
       
-      console.log('Vendors:', vendors.length);
+      // Count tickets by status
+      const approvedTickets = allTickets.filter(ticket => ticket.verificationStatus === 'approved');
+      const pendingTickets = allTickets.filter(ticket => ticket.verificationStatus === 'pending');
       
-      const totalRevenue = bookingsRes.data.data?.reduce((sum, booking) => 
-        sum + (booking.totalAmount || 0), 0
-      ) || 0;
-
+      // Count successful bookings
+      const paidBookings = allBookings.filter(booking => booking.status === 'paid');
+      
+      console.log('📊 Calculated Stats:');
+      console.log('Total Revenue (from successful transactions):', totalRevenue);
+      console.log('Total Users:', allUsers.length, '(Vendors:', vendors.length, 'Users:', regularUsers.length, 'Admins:', admins.length, ')');
+      console.log('Total Tickets:', allTickets.length, '(Approved:', approvedTickets.length, 'Pending:', pendingTickets.length, ')');
+      console.log('Total Bookings:', allBookings.length, '(Paid:', paidBookings.length, ')');
+      
       setStats({
-        totalTickets: ticketsRes.data.tickets?.length || 0,
+        totalTickets: allTickets.length,
         totalRevenue: totalRevenue,
-        activeUsers: vendors.length,
-        totalBookings: bookingsRes.data.data?.length || 0,
+        activeUsers: allUsers.length,
+        totalBookings: allBookings.length,
+        // Additional detailed stats
+        approvedTickets: approvedTickets.length,
+        pendingTickets: pendingTickets.length,
+        vendors: vendors.length,
+        regularUsers: regularUsers.length,
+        paidBookings: paidBookings.length,
+        successfulTransactions: allTransactions.filter(t => t.status === 'Success').length,
+        totalTransactions: allTransactions.length
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
+      toast.error('Failed to load dashboard statistics');
     }
   };
 
@@ -162,11 +201,16 @@ const AdminDashboard = () => {
   const fetchBookings = async () => {
     try {
       const userId = localStorage.getItem('userId');
-      const response = await axios.get(`${API_URL}/bookings`, {
+      const response = await axios.get(`${API_URL}/bookings/admin/all`, {
         headers: { 'x-user-id': userId }
       });
       const fetchedBookings = response.data.data || [];
       console.log('📋 Admin Dashboard - Bookings fetched:', fetchedBookings.length);
+      console.log('Sample booking with unique ID:', fetchedBookings[0] ? {
+        bookingId: fetchedBookings[0].bookingId,
+        userName: fetchedBookings[0].userName,
+        ticketTitle: fetchedBookings[0].ticketTitle
+      } : 'No bookings found');
       setBookings(fetchedBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -376,24 +420,6 @@ const AdminDashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Tickets */}
-          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 hover:shadow-2xl hover:shadow-[#b35a44]/20 transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-[#b35a44]/20 rounded-xl group-hover:scale-110 transition-transform">
-                <Ticket className="w-6 h-6 text-[#d97757]" />
-              </div>
-              <TrendingUp className="w-5 h-5 text-green-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-1">
-              {loading ? (
-                <span className="inline-block animate-pulse">--</span>
-              ) : (
-                stats.totalTickets
-              )}
-            </h3>
-            <p className="text-slate-400 text-sm">Total Tickets</p>
-          </div>
-
           {/* Total Revenue */}
           <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-4">
@@ -410,6 +436,175 @@ const AdminDashboard = () => {
               )}
             </h3>
             <p className="text-slate-400 text-sm">Total Revenue</p>
+            <p className="text-green-400 text-xs mt-1">
+              From {stats.successfulTransactions} successful transactions
+            </p>
+          </div>
+
+          {/* Total Tickets */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 hover:shadow-2xl hover:shadow-[#b35a44]/20 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-[#b35a44]/20 rounded-xl group-hover:scale-110 transition-transform">
+                <Ticket className="w-6 h-6 text-[#d97757]" />
+              </div>
+              <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded-full">
+                {stats.approvedTickets} Approved
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {loading ? (
+                <span className="inline-block animate-pulse">--</span>
+              ) : (
+                stats.totalTickets
+              )}
+            </h3>
+            <p className="text-slate-400 text-sm">Total Tickets</p>
+            <p className="text-orange-400 text-xs mt-1">
+              {stats.pendingTickets} pending review
+            </p>
+          </div>
+
+          {/* Total Users */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                <Users className="w-6 h-6 text-blue-400" />
+              </div>
+              <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded-full">
+                {stats.vendors} Vendors
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {loading ? (
+                <span className="inline-block animate-pulse">--</span>
+              ) : (
+                stats.activeUsers
+              )}
+            </h3>
+            <p className="text-slate-400 text-sm">Total Users</p>
+            <p className="text-blue-400 text-xs mt-1">
+              {stats.regularUsers} customers
+            </p>
+          </div>
+
+          {/* Total Bookings */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                <Calendar className="w-6 h-6 text-purple-400" />
+              </div>
+              <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded-full">
+                {stats.paidBookings} Paid
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {loading ? (
+                <span className="inline-block animate-pulse">--</span>
+              ) : (
+                stats.totalBookings
+              )}
+            </h3>
+            <p className="text-slate-400 text-sm">Total Bookings</p>
+            <p className="text-purple-400 text-xs mt-1">
+              {((stats.paidBookings / Math.max(stats.totalBookings, 1)) * 100).toFixed(1)}% completion rate
+            </p>
+          </div>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Transaction Stats */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-white">Transaction Overview</h4>
+              <DollarSign className="w-5 h-5 text-green-400" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Total Transactions</span>
+                <span className="text-white font-semibold">{stats.totalTransactions}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Successful</span>
+                <span className="text-green-400 font-semibold">{stats.successfulTransactions}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Success Rate</span>
+                <span className="text-green-400 font-semibold">
+                  {((stats.successfulTransactions / Math.max(stats.totalTransactions, 1)) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Avg. Transaction</span>
+                <span className="text-white font-semibold">
+                  ৳{stats.successfulTransactions > 0 ? Math.round(stats.totalRevenue / stats.successfulTransactions).toLocaleString() : 0}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Platform Health */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-white">Platform Health</h4>
+              <TrendingUp className="w-5 h-5 text-blue-400" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Active Vendors</span>
+                <span className="text-blue-400 font-semibold">{stats.vendors}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Tickets per Vendor</span>
+                <span className="text-white font-semibold">
+                  {stats.vendors > 0 ? Math.round(stats.totalTickets / stats.vendors) : 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Booking Completion</span>
+                <span className="text-purple-400 font-semibold">
+                  {((stats.paidBookings / Math.max(stats.totalBookings, 1)) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400 text-sm">Avg. Revenue/User</span>
+                <span className="text-white font-semibold">
+                  ৳{stats.regularUsers > 0 ? Math.round(stats.totalRevenue / stats.regularUsers).toLocaleString() : 0}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-white">Quick Actions</h4>
+              <Filter className="w-5 h-5 text-[#b35a44]" />
+            </div>
+            <div className="space-y-3">
+              <button 
+                onClick={() => fetchAllData()}
+                disabled={loading}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-[#b35a44] hover:bg-[#a04d39] text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>Refresh Data</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('bookings')}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>View Bookings</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('tickets')}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+              >
+                <Ticket className="w-4 h-4" />
+                <span>Manage Tickets</span>
+              </button>
+            </div>
           </div>
 
           {/* Active Users */}
@@ -566,7 +761,9 @@ const AdminDashboard = () => {
                     filteredBookings.map((booking) => (
                       <tr key={booking._id} className="hover:bg-slate-800 transition-colors">
                         <td className="px-6 py-4 text-sm font-mono text-slate-300">
-                          {booking.bookingId || booking._id?.slice(-8)}
+                          <span className="bg-slate-800 px-2 py-1 rounded border border-slate-600 font-semibold">
+                            {booking.bookingId || `UR-${booking._id?.slice(-6)}`}
+                          </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-300">
                           {booking.userName || 'N/A'}

@@ -22,12 +22,56 @@ const RevenueOverview = () => {
   const { data: revenueData, isLoading } = useQuery({
     queryKey: ["vendorRevenue"],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/vendor/revenue`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      console.log('📊 Vendor fetching revenue data...');
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        throw new Error('Vendor not authenticated');
+      }
+
+      // Fetch vendor transactions for real revenue data
+      const transactionsResponse = await axios.get(
+        `${import.meta.env.VITE_API_URL}/transactions/vendor/my-transactions`,
+        { headers: { 'x-user-id': userId } }
       );
-      return response.data;
+      
+      // Fetch vendor's tickets
+      const ticketsResponse = await axios.get(
+        `${import.meta.env.VITE_API_URL}/tickets/vendor/my-tickets`,
+        { headers: { 'x-user-id': userId } }
+      );
+      
+      // Fetch vendor's bookings
+      const bookingsResponse = await axios.get(
+        `${import.meta.env.VITE_API_URL}/bookings/vendor`,
+        { headers: { 'x-user-id': userId } }
+      );
+      
+      const transactions = transactionsResponse.data.transactions || [];
+      const tickets = ticketsResponse.data.tickets || [];
+      const bookings = bookingsResponse.data.bookings || [];
+      
+      const successfulTransactions = transactions.filter(t => t.status === 'Success');
+      const totalRevenue = successfulTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+      const paidBookings = bookings.filter(b => b.status === 'paid');
+      
+      console.log('✅ Vendor revenue data:', {
+        totalRevenue,
+        transactions: transactions.length,
+        tickets: tickets.length,
+        bookings: bookings.length
+      });
+      
+      return {
+        totalRevenue,
+        totalTicketsSold: paidBookings.length,
+        totalTicketsAdded: tickets.length,
+        totalTransactions: transactions.length,
+        successfulTransactions: successfulTransactions.length,
+        transactions,
+        tickets,
+        bookings
+      };
     },
   });
 

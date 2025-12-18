@@ -27,6 +27,8 @@ import AdminDashboard from "../pages/dashboard/admin/AdminDashboard";
 import MyAddedTickets from "../pages/dashboard/vendor/MyAddedTickets";
 import AdminTransactionHistory from "../pages/dashboard/admin/TransactionHistory";
 import VendorTransactionHistory from "../pages/dashboard/vendor/TransactionHistory";
+import UserDashboard from "../pages/dashboard/user/UserDashboard";
+import VendorDashboard from "../pages/dashboard/vendor/VendorDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -110,6 +112,14 @@ export const router = createBrowserRouter([
         ),
       },
       // Vendor Routes
+      {
+        path: "vendor/dashboard",
+        element: (
+          <RoleBasedRoute allowedRoles={["vendor"]}>
+            <VendorDashboard />
+          </RoleBasedRoute>
+        ),
+      },
       {
         path: "vendor/profile",
         element: (

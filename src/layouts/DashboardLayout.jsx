@@ -63,6 +63,7 @@ const DashboardLayout = () => {
 
   // Navigation links definitions
   const userLinks = [
+    { to: "/dashboard/user/dashboard", icon: <FaHome />, label: "Dashboard" },
     { to: "/dashboard/user/profile", icon: <FaUser />, label: "User Profile" },
     {
       to: "/dashboard/user/bookings",
@@ -77,6 +78,11 @@ const DashboardLayout = () => {
   ];
 
   const vendorLinks = [
+    {
+      to: "/dashboard/vendor/dashboard",
+      icon: <FaHome />,
+      label: "Dashboard",
+    },
     {
       to: "/dashboard/vendor/profile",
       icon: <FaUser />,
@@ -101,6 +107,11 @@ const DashboardLayout = () => {
       to: "/dashboard/vendor/revenue",
       icon: <FaChartLine />,
       label: "Revenue Overview",
+    },
+    {
+      to: "/dashboard/vendor/transactions",
+      icon: <FaDollarSign />,
+      label: "Transaction History",
     },
   ];
 
