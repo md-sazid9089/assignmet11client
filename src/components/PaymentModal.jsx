@@ -13,28 +13,28 @@ const PaymentModal = ({ isOpen, onClose, bookingData, onPaymentSuccess }) => {
       id: "bkash",
       name: "bKash",
       type: "mobile",
-      logo: "https://seeklogo.com/images/B/bkash-logo-FBB258B90F-seeklogo.com.png",
+      logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiNFMjEzNkUiLz4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeD0iMTAiIHk9IjEwIj4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSI+Cjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Ykthc2g8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4KPC9zdmc+",
       color: "#E2136E",
     },
     {
       id: "nagad",
       name: "Nagad",
       type: "mobile",
-      logo: "https://seeklogo.com/images/N/nagad-logo-7A70CCFEE0-seeklogo.com.png",
+      logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiNFRTQwMjMiLz4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeD0iMTAiIHk9IjEwIj4KPHRleHQgeD0iNDAiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OYWdhZDwvdGV4dD4KPC9zdmc+Cjwvc3ZnPg==",
       color: "#EE4023",
     },
     {
       id: "visa",
       name: "Visa",
       type: "card",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg",
+      logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiMxQTFGNzEiLz4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeD0iMTAiIHk9IjEwIj4KPHRleHQgeD0iNDAiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5WSVNBPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+",
       color: "#1A1F71",
     },
     {
       id: "mastercard",
       name: "Mastercard",
       type: "card",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
+      logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMTAiIGZpbGw9IiNFQjAwMUIiLz4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeD0iMTAiIHk9IjEwIj4KPGNpcmNsZSBjeD0iMjgiIGN5PSI0MCIgcj0iMTgiIGZpbGw9IiNGRkYiIG9wYWNpdHk9IjAuMyIvPgo8Y2lyY2xlIGN4PSI1MiIgY3k9IjQwIiByPSIxOCIgZmlsbD0iI0ZGRiIgb3BhY2l0eT0iMC4zIi8+CjwvZz4KPC9zdmc+",
       color: "#EB001B",
     },
   ];
@@ -156,12 +156,11 @@ const PaymentModal = ({ isOpen, onClose, bookingData, onPaymentSuccess }) => {
                 }`}
               >
                 <div className="flex flex-col items-center space-y-2">
-                  <div className="w-16 h-16 flex items-center justify-center bg-white rounded-lg p-2">
-                    <img
-                      src={method.logo}
-                      alt={method.name}
-                      className="w-full h-full object-contain"
-                    />
+                  <div 
+                    className="w-16 h-16 flex items-center justify-center rounded-lg text-white font-bold text-xs"
+                    style={{ backgroundColor: method.color }}
+                  >
+                    {method.name}
                   </div>
                   <span className="text-white font-medium text-sm">
                     {method.name}

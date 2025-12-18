@@ -192,9 +192,34 @@ const TicketDetails = () => {
     }
   };
 
+  // Create proper departure datetime from date and time fields
+  const getDepartureDateTime = () => {
+    if (!ticket?.departureDate || !ticket?.departureTime) return null;
+    
+    try {
+      // Convert date to YYYY-MM-DD format if needed
+      const dateStr = ticket.departureDate.split('T')[0];
+      // Combine date and time
+      const dateTimeStr = `${dateStr}T${ticket.departureTime}`;
+      const departureDateTime = new Date(dateTimeStr);
+      
+      // Check if date is valid
+      if (isNaN(departureDateTime.getTime())) {
+        console.warn('Invalid departure datetime:', dateTimeStr);
+        return null;
+      }
+      
+      return departureDateTime;
+    } catch (error) {
+      console.error('Error parsing departure datetime:', error);
+      return null;
+    }
+  };
+
   const isDepartureTimePassed = () => {
-    if (!ticket?.departureDateTime) return false;
-    return new Date(ticket.departureDateTime) < new Date();
+    const departureDateTime = getDepartureDateTime();
+    if (!departureDateTime) return false;
+    return departureDateTime < new Date();
   };
 
   if (loading) {
@@ -302,17 +327,22 @@ const TicketDetails = () => {
                     Departure Time
                   </p>
                   <p className="text-xl font-bold text-gray-800 dark:text-white">
-                    {new Date(ticket.departureDateTime).toLocaleString(
-                      "en-US",
-                      {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )}
+                    {(() => {
+                      const departureDateTime = getDepartureDateTime();
+                      if (!departureDateTime) return 'TBA';
+                      
+                      return departureDateTime.toLocaleString(
+                        "en-US",
+                        {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long", 
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      );
+                    })()}
                   </p>
                 </div>
               </div>
@@ -327,35 +357,58 @@ const TicketDetails = () => {
                 <p className="text-center text-xl font-semibold mb-4">
                   ⏰ Time Until Departure
                 </p>
-                <Countdown
-                  date={new Date(ticket.departureDateTime)}
-                  renderer={({ days, hours, minutes, seconds }) => (
-                    <div className="grid grid-cols-4 gap-4">
-                      <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                        <p className="text-4xl lg:text-5xl font-bold">{days}</p>
-                        <p className="text-sm mt-2 font-medium">Days</p>
+                {(() => {
+                  const departureDateTime = getDepartureDateTime();
+                  if (!departureDateTime) {
+                    return (
+                      <div className="text-center text-2xl font-semibold">
+                        Departure time to be announced
                       </div>
-                      <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                        <p className="text-4xl lg:text-5xl font-bold">
-                          {hours}
-                        </p>
-                        <p className="text-sm mt-2 font-medium">Hours</p>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                        <p className="text-4xl lg:text-5xl font-bold">
-                          {minutes}
-                        </p>
-                        <p className="text-sm mt-2 font-medium">Minutes</p>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                        <p className="text-4xl lg:text-5xl font-bold">
-                          {seconds}
-                        </p>
-                        <p className="text-sm mt-2 font-medium">Seconds</p>
-                      </div>
-                    </div>
-                  )}
-                />
+                    );
+                  }
+                  
+                  return (
+                    <Countdown
+                      date={departureDateTime}
+                      renderer={({ days, hours, minutes, seconds, completed }) => {
+                        if (completed) {
+                          return (
+                            <div className="text-center text-2xl font-semibold">
+                              🚀 Departure Time Reached!
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <div className="grid grid-cols-4 gap-4">
+                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
+                              <p className="text-4xl lg:text-5xl font-bold">{days || 0}</p>
+                              <p className="text-sm mt-2 font-medium">Days</p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
+                              <p className="text-4xl lg:text-5xl font-bold">
+                                {hours || 0}
+                              </p>
+                              <p className="text-sm mt-2 font-medium">Hours</p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
+                              <p className="text-4xl lg:text-5xl font-bold">
+                                {minutes || 0}
+                              </p>
+                              <p className="text-sm mt-2 font-medium">Minutes</p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
+                              <p className="text-4xl lg:text-5xl font-bold">
+                                {seconds || 0}
+                              </p>
+                              <p className="text-sm mt-2 font-medium">Seconds</p>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+                  );
+                })()}
               </div>
             )}
 
