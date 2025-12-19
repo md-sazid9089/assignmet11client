@@ -63,18 +63,9 @@ const Register = () => {
       // Step 6: Success message and redirect
       toast.success(`Welcome to Uraan! Account created as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`);
       
-      // Role-based redirect
+      // Redirect all new users to home page
       setTimeout(() => {
-        switch (selectedRole) {
-          case 'vendor':
-            navigate('/dashboard/vendor/profile');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin/dashboard');
-            break;
-          default:
-            navigate('/');
-        }
+        navigate('/', { replace: true });
       }, 1000);
       
     } catch (error) {
@@ -113,18 +104,9 @@ const Register = () => {
       
       toast.success(`Welcome to Uraan! Registered as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`);
       
-      // Role-based redirect
+      // Redirect all new users to home page
       setTimeout(() => {
-        switch (selectedRole) {
-          case 'vendor':
-            navigate('/dashboard/vendor/profile');
-            break;
-          case 'admin':
-            navigate('/dashboard/admin/dashboard');
-            break;
-          default:
-            navigate('/');
-        }
+        navigate('/', { replace: true });
       }, 1000);
       
     } catch (error) {
