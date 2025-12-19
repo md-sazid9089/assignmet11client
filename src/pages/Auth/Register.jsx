@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { FcGoogle } from "react-icons/fc";
-import { FiMail, FiLock, FiUser, FiShield } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiShield, FiImage } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -363,6 +363,30 @@ const Register = () => {
                   )}
                 </motion.div>
 
+                {/* Profile Image URL Input */}
+                <motion.div variants={itemVariants} className="relative group">
+                  <FiImage className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 transition-colors group-focus-within:text-[#b35a44]" />
+                  <input
+                    type="url"
+                    {...register("photoURL", { 
+                      pattern: {
+                        value: /^https?:\/\/.+/i,
+                        message: "Please enter a valid URL"
+                      }
+                    })}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-900/60 border border-slate-700 rounded-2xl text-slate-400 placeholder-transparent focus:outline-none focus:border-[#b35a44] focus:ring-2 focus:ring-[#b35a44]/20 transition-all peer"
+                    placeholder="Profile Image URL"
+                  />
+                  <label className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-8 peer-focus:text-xs peer-focus:text-[#b35a44] peer-focus:bg-slate-900 peer-focus:px-2 peer-focus:rounded peer-[:not(:placeholder-shown)]:-translate-y-8 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-slate-400 peer-[:not(:placeholder-shown)]:bg-slate-900 peer-[:not(:placeholder-shown)]:px-2 peer-[:not(:placeholder-shown)]:rounded">
+                    Profile Image URL (Optional)
+                  </label>
+                  {errors.photoURL && (
+                    <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
+                      <span>⚠</span> {errors.photoURL.message}
+                    </p>
+                  )}
+                </motion.div>
+
                 {/* Password Input */}
                 <motion.div variants={itemVariants} className="relative group">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10 transition-colors group-focus-within:text-[#b35a44]" />
@@ -373,6 +397,10 @@ const Register = () => {
                       minLength: {
                         value: 6,
                         message: "Password must be at least 6 characters"
+                      },
+                      pattern: {
+                        value: /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/,
+                        message: "Password must contain uppercase, lowercase, and at least 6 characters"
                       }
                     })}
                     className="w-full pl-12 pr-4 py-4 bg-slate-900/60 border border-slate-700 rounded-2xl text-slate-400 placeholder-transparent focus:outline-none focus:border-[#b35a44] focus:ring-2 focus:ring-[#b35a44]/20 transition-all peer"

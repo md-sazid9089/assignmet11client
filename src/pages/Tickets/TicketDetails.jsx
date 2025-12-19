@@ -417,8 +417,8 @@ const TicketDetails = () => {
                       </div>
                       <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
                         <p className="text-slate-400 text-xs font-medium mb-1">AVAILABLE</p>
-                        <p className="text-white font-bold text-sm">
-                          {ticket.quantity} Seats
+                        <p className={`font-bold text-sm ${ticket.quantity === 0 ? 'text-red-400' : 'text-white'}`}>
+                          {ticket.quantity === 0 ? 'No Tickets Available' : `${ticket.quantity} Seats`}
                         </p>
                       </div>
                     </div>
@@ -722,8 +722,8 @@ const TicketDetails = () => {
                         Available Seats
                       </p>
                     </div>
-                    <p className="text-4xl font-bold text-gray-800 dark:text-white">
-                      {ticket.quantity}
+                    <p className={`text-4xl font-bold ${ticket.quantity === 0 ? 'text-red-400' : 'text-gray-800 dark:text-white'}`}>
+                      {ticket.quantity === 0 ? 'Sold Out' : ticket.quantity}
                     </p>
                     {ticket.quantity < 10 &&
                       ticket.quantity > 0 && (

@@ -131,7 +131,9 @@ const TicketCard = ({ ticket }) => {
               </div>
               <div className="text-right">
                 <p className="text-slate-400 text-sm">Available</p>
-                <p className="text-white font-semibold">{ticket.quantity}</p>
+                <p className={`font-semibold ${ticket.quantity === 0 ? 'text-red-400' : 'text-white'}`}>
+                  {ticket.quantity === 0 ? 'Sold Out' : ticket.quantity}
+                </p>
               </div>
             </div>
 
@@ -157,21 +159,29 @@ const TicketCard = ({ ticket }) => {
             )}
 
             {/* See Details Button */}
-            <Link
-              to={`/ticket/${ticket._id}`}
-              className="mt-auto block"
-            >
-              <motion.div
-                className="w-full py-3 px-6 bg-slate-800 text-white rounded-xl border border-slate-700/50 text-center font-semibold transition-all duration-300 hover:border-transparent"
-                whileHover={{
-                  background: "linear-gradient(135deg, #b35a44 0%, #d97757 100%)",
-                  boxShadow: "0 8px 25px rgba(179, 90, 68, 0.4)"
-                }}
-                whileTap={{ scale: 0.98 }}
+            {ticket.quantity === 0 ? (
+              <div className="mt-auto">
+                <div className="w-full py-3 px-6 bg-red-900/30 text-red-400 rounded-xl border border-red-800/50 text-center font-semibold">
+                  No Tickets Available
+                </div>
+              </div>
+            ) : (
+              <Link
+                to={`/ticket/${ticket._id}`}
+                className="mt-auto block"
               >
-                See Details
-              </motion.div>
-            </Link>
+                <motion.div
+                  className="w-full py-3 px-6 bg-slate-800 text-white rounded-xl border border-slate-700/50 text-center font-semibold transition-all duration-300 hover:border-transparent"
+                  whileHover={{
+                    background: "linear-gradient(135deg, #b35a44 0%, #d97757 100%)",
+                    boxShadow: "0 8px 25px rgba(179, 90, 68, 0.4)"
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  See Details
+                </motion.div>
+              </Link>
+            )}
           </div>
         </motion.div>
       </div>
