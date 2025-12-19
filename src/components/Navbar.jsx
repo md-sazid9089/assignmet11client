@@ -4,6 +4,7 @@ import { AuthContext } from "../providers/AuthProvider";
 import { FaBars, FaTimes, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
+import gsap from "gsap";
 import logo from "../assets/logo.png";
 
 const Navbar = () => {
@@ -14,16 +15,61 @@ const Navbar = () => {
   const [userRole, setUserRole] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const avatarRef = useRef(null);
+  const navRef = useRef(null);
+  const lastScrollY = useRef(0);
+  const [isVisible, setIsVisible] = useState(true);
 
   const isHomePage = location.pathname === '/';
 
-  // Scroll detection
+  // Headroom effect - Hide/Show navbar on scroll
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          
+          // Determine scroll direction and visibility
+          if (currentScrollY > 100) {
+            setIsScrolled(true);
+            
+            if (currentScrollY > lastScrollY.current && currentScrollY > 200) {
+              // Scrolling down - hide navbar
+              setIsVisible(false);
+              gsap.to(navRef.current, {
+                y: -100,
+                duration: 0.3,
+                ease: "power2.inOut",
+              });
+            } else if (currentScrollY < lastScrollY.current) {
+              // Scrolling up - show navbar
+              setIsVisible(true);
+              gsap.to(navRef.current, {
+                y: 0,
+                duration: 0.3,
+                ease: "power2.inOut",
+              });
+            }
+          } else {
+            setIsScrolled(false);
+            setIsVisible(true);
+            gsap.to(navRef.current, {
+              y: 0,
+              duration: 0.3,
+              ease: "power2.inOut",
+            });
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -95,11 +141,14 @@ const Navbar = () => {
   );
 
   return (
-    <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${
-      isHomePage && !isScrolled
-        ? 'bg-transparent border-transparent' 
-        : 'bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-700 shadow-lg'
-    }`}>
+    <nav 
+      ref={navRef}
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${
+        isHomePage && !isScrolled
+          ? 'bg-transparent border-transparent' 
+          : 'bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-700 shadow-lg'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4">
         <div className="h-20 flex items-center justify-between">
           {/* Logo */}

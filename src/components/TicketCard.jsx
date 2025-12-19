@@ -1,11 +1,56 @@
 import { Link } from "react-router";
 import { motion } from "framer-motion";
 import { Bus, Train, Ship, Plane, MapPin, ImageOff } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const TicketCard = ({ ticket }) => {
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
+
+const TicketCard = ({ ticket, index = 0 }) => {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef(null);
+
+  // GSAP ScrollTrigger animation
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    // Set initial state
+    gsap.set(card, {
+      opacity: 0,
+      y: 50,
+    });
+
+    // Create scroll-triggered animation
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: card,
+        start: "top 85%",
+        end: "bottom 15%",
+        toggleActions: "play none none none",
+        once: true, // Animation plays only once
+      },
+    });
+
+    tl.to(card, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power3.out",
+      delay: index * 0.1, // Stagger effect based on card index
+    });
+
+    // Cleanup
+    return () => {
+      if (tl.scrollTrigger) {
+        tl.scrollTrigger.kill();
+      }
+      tl.kill();
+    };
+  }, [index]);
 
   const getTransportIcon = (type) => {
     const iconClass = "w-5 h-5";
@@ -40,8 +85,7 @@ const TicketCard = ({ ticket }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      ref={cardRef}
       whileHover={{ 
         y: -8,
         transition: { duration: 0.2 }
