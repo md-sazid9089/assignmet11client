@@ -55,9 +55,9 @@ const VendorDashboard = () => {
       const pendingTickets = tickets.filter(t => t.verificationStatus === 'pending');
       
       const totalBookings = bookings.length;
-      const pendingBookings = bookings.filter(b => b.status === 'pending');
-      const acceptedBookings = bookings.filter(b => b.status === 'accepted');
-      const paidBookings = bookings.filter(b => b.status === 'paid');
+      const pendingBookings = bookings.filter(b => b.status === 'Pending');
+      const acceptedBookings = bookings.filter(b => b.status === 'Approved');
+      const paidBookings = bookings.filter(b => b.status === 'Paid');
       
       const successfulTransactions = transactions.filter(t => t.status === 'Success');
       const totalRevenue = successfulTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);

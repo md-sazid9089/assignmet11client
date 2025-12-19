@@ -13,30 +13,30 @@ const ManageTickets = () => {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["adminBookings"],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/bookings/admin/all`,
         { 
           headers: { 
-            'Authorization': `Bearer ${token}`,
+            'x-user-id': userId,
             'Content-Type': 'application/json'
           } 
         }
       );
-      return response.data.bookings || [];
+      return response.data.data || response.data.bookings || [];
     },
   });
 
   // Booking status update mutation for admin approval/rejection
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }) => {
-      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
       const response = await axios.patch(
         `${import.meta.env.VITE_API_URL}/bookings/status/${id}`,
         { status },
         { 
           headers: { 
-            'Authorization': `Bearer ${token}`,
+            'x-user-id': userId,
             'Content-Type': 'application/json'
           } 
         }

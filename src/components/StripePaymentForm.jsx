@@ -99,11 +99,6 @@ const CheckoutForm = ({
         bookingId: bookingData?.bookingId || null,
       });
       
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found. Please login again.');
-      }
-      
       const paymentIntentResponse = await axios.post(
         `${import.meta.env.VITE_API_URL}/payment/create-intent`,
         {
@@ -113,7 +108,6 @@ const CheckoutForm = ({
         },
         {
           headers: { 
-            'Authorization': `Bearer ${token}`,
             'x-user-id': userId,
             'Content-Type': 'application/json'
           }
@@ -175,7 +169,6 @@ const CheckoutForm = ({
             },
             {
               headers: { 
-                'Authorization': `Bearer ${token}`,
                 'x-user-id': userId,
                 'Content-Type': 'application/json'
               }

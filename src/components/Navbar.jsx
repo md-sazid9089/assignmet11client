@@ -5,7 +5,6 @@ import { FaBars, FaTimes, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
 import logo from "../assets/logo.png";
-import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
@@ -118,8 +117,6 @@ const Navbar = () => {
 
           {/* Desktop Right */}
           <div className="hidden md:flex items-center gap-4">
-            <ThemeToggle />
-
             {user ? (
               <div ref={avatarRef} className="relative">
                 <button 
@@ -198,7 +195,6 @@ const Navbar = () => {
 
           {/* Mobile Controls */}
           <div className="md:hidden flex items-center gap-3">
-            <ThemeToggle />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`transition-all duration-300 ${

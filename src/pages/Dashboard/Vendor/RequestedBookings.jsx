@@ -15,7 +15,7 @@ const RequestedBookings = () => {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["vendorBookings"],
     queryFn: async () => {
-      const userId = user?.uid;
+      const userId = localStorage.getItem('userId');
       if (!userId) throw new Error("User not authenticated");
       
       const response = await axios.get(
@@ -24,12 +24,12 @@ const RequestedBookings = () => {
       );
       return response.data.bookings || [];
     },
-    enabled: !!user?.uid,
+    enabled: !!user,
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ bookingId, status }) => {
-      const userId = user?.uid;
+      const userId = localStorage.getItem('userId');
       if (!userId) throw new Error("User not authenticated");
       
       const response = await axios.put(
@@ -42,7 +42,7 @@ const RequestedBookings = () => {
     onSuccess: (data, variables) => {
       toast.success(
         `Booking ${
-          variables.status === "accepted" ? "accepted" : "rejected"
+          variables.status === "Approved" ? "approved" : "cancelled"
         } successfully!`
       );
       queryClient.invalidateQueries(["vendorBookings"]);
@@ -53,11 +53,11 @@ const RequestedBookings = () => {
   });
 
   const handleAccept = (bookingId) => {
-    updateStatusMutation.mutate({ bookingId, status: "accepted" });
+    updateStatusMutation.mutate({ bookingId, status: "Approved" });
   };
 
   const handleReject = (bookingId) => {
-    updateStatusMutation.mutate({ bookingId, status: "rejected" });
+    updateStatusMutation.mutate({ bookingId, status: "Cancelled" });
   };
 
   if (isLoading) {
@@ -87,12 +87,12 @@ const RequestedBookings = () => {
     });
 
   // Calculate summary stats
-  const pendingCount = bookings.filter(b => b.status === "pending").length;
-  const acceptedCount = bookings.filter(b => b.status === "accepted").length;
-  const rejectedCount = bookings.filter(b => b.status === "rejected").length;
-  const paidCount = bookings.filter(b => b.status === "paid").length;
+  const pendingCount = bookings.filter(b => b.status === "Pending").length;
+  const acceptedCount = bookings.filter(b => b.status === "Approved").length;
+  const rejectedCount = bookings.filter(b => b.status === "Cancelled").length;
+  const paidCount = bookings.filter(b => b.status === "Paid").length;
   const totalRevenue = bookings
-    .filter(b => b.status === "paid")
+    .filter(b => b.status === "Paid")
     .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
   return (
@@ -141,10 +141,10 @@ const RequestedBookings = () => {
                 className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="paid">Paid</option>
-                <option value="rejected">Rejected</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Paid">Paid</option>
+                <option value="Cancelled">Cancelled</option>
               </select>
             </div>
 
@@ -213,11 +213,11 @@ const RequestedBookings = () => {
                     {/* Status Badge */}
                     <span
                       className={`px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 ${
-                        booking.status === "pending"
+                        booking.status === "Pending"
                           ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : booking.status === "accepted"
+                          : booking.status === "Approved"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : booking.status === "rejected"
+                          : booking.status === "Cancelled"
                           ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                           : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                       }`}
@@ -296,7 +296,7 @@ const RequestedBookings = () => {
 
                 {/* Actions */}
                 <div className="flex flex-col gap-3">
-                  {booking.status === "pending" ? (
+                  {booking.status === "Pending" ? (
                     <>
                       <button
                         onClick={() => handleAccept(booking._id)}
