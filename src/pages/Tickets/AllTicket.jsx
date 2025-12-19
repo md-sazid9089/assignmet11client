@@ -51,9 +51,9 @@ const AllTickets = () => {
         params.search = fromLocation || toLocation;
       }
 
-      // Add transport type filter
+      // Add transport type filter (convert to lowercase to match backend enum)
       if (transportType) {
-        params.transportType = transportType;
+        params.transportType = transportType.toLowerCase();
       }
 
       // Add sorting
