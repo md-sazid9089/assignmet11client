@@ -17,6 +17,8 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState('');
   const { user, userRole, login, loginWithGoogle, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState({ google: false, github: false });
 
   // Helper function to redirect by role with email-specific checks
   const redirectByRole = (currentEmail, role) => {
@@ -74,6 +76,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     console.log('🔄 Starting login process for:', email);
     
     try {
@@ -113,11 +116,12 @@ const Login = () => {
       } else {
         toast.error(error.message || 'Login failed');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
-    console.log('🔄 Starting Google login process');
+  const handleGoogleLogin = async () => {    setSocialLoading({ ...socialLoading, google: true });    console.log('🔄 Starting Google login process');
     
     try {
       const result = await loginWithGoogle();
@@ -148,6 +152,22 @@ const Login = () => {
       } else {
         toast.error(error.message || 'Google login failed');
       }
+    } finally {
+      setSocialLoading({ ...socialLoading, google: false });
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    setSocialLoading({ ...socialLoading, github: true });
+    
+    try {
+      // For now, show a coming soon message since GitHub auth needs additional setup
+      toast.success('GitHub login coming soon! Use Google or email for now.', { duration: 3000 });
+    } catch (error) {
+      console.error('❌ GitHub login error:', error);
+      toast.error(error.message || 'GitHub login failed');
+    } finally {
+      setSocialLoading({ ...socialLoading, github: false });
     }
   };
 
@@ -196,12 +216,14 @@ const Login = () => {
                   </label>
                 </div>
 
-                <button 
-                  type="submit" 
+                <motion.button 
+                  type="submit"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   className="w-full py-4 bg-[#b35a44] hover:bg-[#a04b36] text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-[#b35a44]/25"
                 >
                   Send Reset Link
-                </button>
+                </motion.button>
 
                 <button
                   type="button"
@@ -234,23 +256,79 @@ const Login = () => {
         {/* Branding Content */}
         <div className="relative z-10 flex flex-col justify-center items-center text-center p-12">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="space-y-6"
           >
-            <div className="w-24 h-24 mx-auto mb-8">
-              <img src={logo} alt="Uraan" className="w-full h-full object-contain filter brightness-0 invert" />
-            </div>
-            <h1 className="text-6xl font-bold text-white mb-4">Uraan</h1>
-            <p className="text-xl text-slate-300 max-w-md">
+            <motion.div 
+              className="w-24 h-24 mx-auto mb-8"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+            >
+              <img src={logo} alt="Uraan" className="w-full h-full object-contain filter brightness-0 invert drop-shadow-lg" />
+            </motion.div>
+            <motion.h1 
+              className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-white via-slate-200 to-white bg-clip-text"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              Uraan
+            </motion.h1>
+            <motion.p 
+              className="text-xl text-slate-300 max-w-md leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
               Your gateway to seamless travel experiences across Bangladesh
-            </p>
-            <div className="flex items-center justify-center space-x-4 mt-8">
-              <div className="w-2 h-2 bg-[#b35a44] rounded-full animate-pulse" />
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse delay-100" />
-              <div className="w-2 h-2 bg-[#b35a44] rounded-full animate-pulse delay-200" />
-            </div>
+            </motion.p>
+            <motion.div 
+              className="flex items-center justify-center space-x-4 mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              <motion.div 
+                className="w-3 h-3 bg-[#b35a44] rounded-full"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+              />
+              <motion.div 
+                className="w-3 h-3 bg-cyan-400 rounded-full"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0.5
+                }}
+              />
+              <motion.div 
+                className="w-3 h-3 bg-[#b35a44] rounded-full"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 1
+                }}
+              />
+            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -258,9 +336,14 @@ const Login = () => {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ 
+            duration: 0.7,
+            type: "spring",
+            stiffness: 100,
+            damping: 15
+          }}
           className="w-full max-w-md"
         >
           {/* Glassmorphic Card with Gradient Border */}
@@ -322,11 +405,19 @@ const Login = () => {
                 {/* Login Button with Clay Background and Glow */}
                 <motion.button 
                   type="submit" 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 bg-[#b35a44] hover:bg-[#a04b36] text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-[#b35a44]/25"
+                  disabled={isLoading}
+                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                  className="w-full py-4 bg-[#b35a44] hover:bg-[#a04b36] disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-[#b35a44]/25 flex items-center justify-center gap-2"
                 >
-                  Sign In
+                  {isLoading && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    />
+                  )}
+                  {isLoading ? 'Signing In...' : 'Sign In'}
                 </motion.button>
               </form>
 
@@ -348,21 +439,40 @@ const Login = () => {
               <div className="space-y-4">
                 <motion.button
                   onClick={handleGoogleLogin}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-3 py-4 border border-slate-800 hover:border-slate-600 rounded-2xl text-white font-medium transition-all hover:bg-slate-900/30"
+                  disabled={socialLoading.google}
+                  whileHover={{ scale: socialLoading.google ? 1 : 1.02 }}
+                  whileTap={{ scale: socialLoading.google ? 1 : 0.98 }}
+                  className="w-full flex items-center justify-center gap-3 py-4 border border-slate-800 hover:border-slate-600 disabled:border-slate-700 disabled:cursor-not-allowed rounded-2xl text-white font-medium transition-all hover:bg-slate-900/30 disabled:bg-slate-900/20"
                 >
-                  <FcGoogle size={24} />
-                  Continue with Google
+                  {socialLoading.google ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    <FcGoogle size={24} />
+                  )}
+                  {socialLoading.google ? 'Connecting...' : 'Continue with Google'}
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-3 py-4 border border-slate-800 hover:border-slate-600 rounded-2xl text-white font-medium transition-all hover:bg-slate-900/30"
+                  onClick={handleGithubLogin}
+                  disabled={socialLoading.github}
+                  whileHover={{ scale: socialLoading.github ? 1 : 1.02 }}
+                  whileTap={{ scale: socialLoading.github ? 1 : 0.98 }}
+                  className="w-full flex items-center justify-center gap-3 py-4 border border-slate-800 hover:border-slate-600 disabled:border-slate-700 disabled:cursor-not-allowed rounded-2xl text-white font-medium transition-all hover:bg-slate-900/30 disabled:bg-slate-900/20"
                 >
-                  <FiGithub size={24} />
-                  Continue with GitHub
+                  {socialLoading.github ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    <FiGithub size={24} />
+                  )}
+                  {socialLoading.github ? 'Connecting...' : 'Continue with GitHub'}
                 </motion.button>
               </div>
 
