@@ -25,7 +25,7 @@ const VendorDashboard = () => {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['vendor-dashboard'],
     queryFn: async () => {
-      console.log('📊 Vendor fetching dashboard data...');
+      // // console.log('📊 Vendor fetching dashboard data...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -70,13 +70,7 @@ const VendorDashboard = () => {
         new Date(b.createdAt).getMonth() === new Date().getMonth()
       );
 
-      console.log('✅ Vendor dashboard data calculated:', {
-        totalTickets,
-        totalBookings,
-        totalRevenue,
-        approvedTickets: approvedTickets.length,
-        pendingBookings: pendingBookings.length
-      });
+      // // console.log('✅ Vendor dashboard data calculated');
 
       return {
         tickets,

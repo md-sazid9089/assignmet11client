@@ -13,7 +13,7 @@ const AdvertisedTickets = () => {
           `${import.meta.env.VITE_API_URL}/tickets/advertised`
         );
         const fetchedTickets = response.data.tickets || response.data || [];
-        console.log('📢 Advertised Tickets fetched:', fetchedTickets.length);
+        // // console.log('📢 Advertised Tickets fetched:', fetchedTickets.length);
         setTickets(fetchedTickets);
       } catch (error) {
         console.error("Error fetching advertised tickets:", error);
@@ -57,3 +57,4 @@ const AdvertisedTickets = () => {
 };
 
 export default AdvertisedTickets;
+

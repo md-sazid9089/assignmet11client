@@ -23,7 +23,7 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
   // Force admin role for specific email
   const effectiveRole = user.email === ADMIN_EMAIL ? 'admin' : userRole;
 
-  console.log('🔒 RoleBasedRoute check - email:', user.email, 'effectiveRole:', effectiveRole, 'allowedRoles:', allowedRoles);
+  // // console.log('🔒 RoleBasedRoute check - email:', user.email, 'effectiveRole:', effectiveRole, 'allowedRoles:', allowedRoles);
 
   if (!effectiveRole || !allowedRoles.includes(effectiveRole)) {
     // Redirect to appropriate dashboard based on role
@@ -39,3 +39,4 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
 };
 
 export default RoleBasedRoute;
+

@@ -66,18 +66,11 @@ const AllTickets = () => {
         { params }
       );
       
-      console.log('🎫 Tickets API Response:', {
-        ticketsCount: response.data.tickets?.length || 0,
-        totalPages: response.data.pagination?.pages,
-        currentPage: response.data.pagination?.page,
-        total: response.data.pagination?.total
-      });
-      
       // Prevent older/slower requests from overwriting newer results.
       if (requestSeq === requestSeqRef.current) {
         setTickets(response.data.tickets || []);
         setTotalPages(response.data.pagination?.pages || 1);
-        console.log('✅ Tickets state updated with', response.data.tickets?.length || 0, 'tickets');
+        // // console.log('✅ Tickets state updated with', response.data.tickets?.length || 0, 'tickets');
       }
     } catch (error) {
       console.error("Error fetching tickets:", error);
@@ -251,3 +244,4 @@ const AllTickets = () => {
 };
 
 export default AllTickets;
+

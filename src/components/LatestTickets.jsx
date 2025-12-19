@@ -13,7 +13,7 @@ const LatestTickets = () => {
           `${import.meta.env.VITE_API_URL}/tickets/latest`
         );
         const fetchedTickets = response.data.tickets || response.data || [];
-        console.log('🆕 Latest Tickets fetched:', fetchedTickets.length);
+        // // console.log('🆕 Latest Tickets fetched:', fetchedTickets.length);
         setTickets(fetchedTickets);
       } catch (error) {
         console.error("Error fetching latest tickets:", error);
@@ -54,3 +54,4 @@ const LatestTickets = () => {
 };
 
 export default LatestTickets;
+

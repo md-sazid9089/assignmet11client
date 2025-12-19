@@ -71,15 +71,15 @@ const TicketDetails = () => {
 
   const fetchTicket = async () => {
     try {
-      console.log('🎫 Fetching ticket details for ID:', id);
+      // // console.log('🎫 Fetching ticket details for ID:', id);
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/tickets/${id}`
       );
-      console.log('📦 Ticket Details Response:', response.data);
+      // // console.log('📦 Ticket Details Response:', response.data);
       
       // Backend returns { success: true, ticket: {...} }
       setTicket(response.data.ticket || response.data);
-      console.log('✅ Ticket loaded successfully');
+      // // console.log('✅ Ticket loaded successfully');
     } catch (error) {
       console.error("❌ Error fetching ticket:", error);
       console.error("Error details:", error.response?.data);
@@ -89,7 +89,7 @@ const TicketDetails = () => {
     }
   };
 
-  const handleBooking = (e) => {
+  const handleBooking = async (e) => {
     e.preventDefault();
 
     // Check if user is logged in
@@ -121,22 +121,46 @@ const TicketDetails = () => {
       return;
     }
 
-    // Prepare booking data and show payment modal
-    const totalPrice = ticket.pricePerUnit * bookingQuantity;
-    const bookingData = {
-      ticketId: ticket._id,
-      ticketTitle: ticket.title,
-      quantity: bookingQuantity,
-      totalPrice,
-      userName: user?.displayName || user?.name || "Anonymous",
-      userEmail: user?.email,
-      vendorId: ticket.vendorId,
-    };
+    // Create booking immediately without payment
+    setSubmitting(true);
+    try {
+      const totalPrice = ticket.pricePerUnit * bookingQuantity;
+      const bookingData = {
+        ticketId: ticket._id,
+        ticketTitle: ticket.title,
+        quantity: bookingQuantity,
+        totalPrice,
+        userName: user?.displayName || user?.name || "Anonymous",
+        userEmail: user?.email,
+        vendorId: ticket.vendorId,
+      };
 
-    setPendingBookingData(bookingData);
-    setShowModal(false);
-    // Use Stripe payment instead of dummy payment modal
-    setShowStripePayment(true);
+      // // console.log('📝 Creating booking:', bookingData);
+
+      const bookingResponse = await axios.post(
+        `${import.meta.env.VITE_API_URL}/bookings`,
+        bookingData,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      // // console.log('✅ Booking created successfully:', bookingResponse.data);
+      
+      toast.success(`Booking created! Booking ID: ${bookingResponse.data.booking?.bookingId}. Wait for admin approval to make payment.`, { duration: 5000 });
+      
+      setShowModal(false);
+      setBookingQuantity(1);
+      
+      // Redirect to user bookings page
+      setTimeout(() => {
+        navigate("/dashboard/user/bookings");
+      }, 1500);
+      
+    } catch (error) {
+      console.error('❌ Booking error:', error);
+      toast.error(error.response?.data?.message || "Failed to create booking");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handlePaymentSuccess = async (paymentData) => {
@@ -144,7 +168,7 @@ const TicketDetails = () => {
     try {
       const userId = localStorage.getItem("userId");
 
-      console.log('📝 Creating booking with payment data:', paymentData);
+      // // console.log('📝 Creating booking with payment data:', paymentData);
 
       // Step 1: Create the booking
       const bookingResponse = await axios.post(
@@ -153,8 +177,8 @@ const TicketDetails = () => {
         { headers: { 'x-user-id': userId } }
       );
 
-      console.log('✅ Booking created successfully:', bookingResponse.data);
-      console.log('🎫 Booking ID:', bookingResponse.data.booking?.bookingId);
+      // // console.log('✅ Booking created successfully:', bookingResponse.data);
+      // // console.log('🎫 Booking ID:', bookingResponse.data.booking?.bookingId);
 
       // Step 2: Confirm the booking and create transaction record
       const confirmationData = {
@@ -162,7 +186,7 @@ const TicketDetails = () => {
         paymentMethod: paymentData.paymentMethod
       };
 
-      console.log('💳 Confirming booking payment:', confirmationData);
+      // // console.log('💳 Confirming booking payment:', confirmationData);
 
       const confirmResponse = await axios.post(
         `${import.meta.env.VITE_API_URL}/bookings/confirm`,
@@ -170,7 +194,7 @@ const TicketDetails = () => {
         { headers: { 'x-user-id': userId } }
       );
 
-      console.log('✅ Booking confirmed and transaction recorded:', confirmResponse.data);
+      // // console.log('✅ Booking confirmed and transaction recorded:', confirmResponse.data);
       
       setBookingQuantity(1);
       setPendingBookingData(null);
@@ -192,8 +216,8 @@ const TicketDetails = () => {
     try {
       const userId = localStorage.getItem("userId");
       
-      console.log('🎉 Stripe payment successful, creating booking...');
-      console.log('💳 Payment Intent ID:', paymentIntent.id);
+      // // console.log('🎉 Stripe payment successful, creating booking...');
+      // // console.log('💳 Payment Intent ID:', paymentIntent.id);
 
       // Create the booking with Stripe payment method
       const bookingData = {
@@ -209,7 +233,7 @@ const TicketDetails = () => {
         { headers: { 'x-user-id': userId } }
       );
 
-      console.log('✅ Stripe booking created successfully:', bookingResponse.data);
+      // // console.log('✅ Stripe booking created successfully:', bookingResponse.data);
       
       // Confirm booking and record transaction
       const confirmationData = {
@@ -224,7 +248,7 @@ const TicketDetails = () => {
         { headers: { 'x-user-id': userId } }
       );
 
-      console.log('✅ Stripe booking confirmed:', confirmResponse.data);
+      // // console.log('✅ Stripe booking confirmed:', confirmResponse.data);
       
       toast.success(`Payment successful! Booking ID: ${bookingResponse.data.booking?.bookingId}`, { duration: 5000 });
       
@@ -941,7 +965,7 @@ const TicketDetails = () => {
                 currency="BDT"
                 bookingData={pendingBookingData}
                 onSuccess={(result) => {
-                  console.log('💳 Payment result:', result);
+                  // // console.log('💳 Payment result:', result);
                   handleStripePaymentSuccess(result.paymentIntent);
                 }}
                 onCancel={() => {
@@ -958,3 +982,4 @@ const TicketDetails = () => {
 };
 
 export default TicketDetails;
+

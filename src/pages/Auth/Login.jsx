@@ -24,14 +24,14 @@ const Login = () => {
 
   // Helper function to redirect by role with email-specific checks
   const redirectByRole = (currentEmail, role) => {
-    console.log('🚀 Redirecting user with email:', currentEmail, 'role:', role);
+    // // console.log('🚀 Redirecting user with email:', currentEmail, 'role:', role);
     
     // Force admin routing for specific email (opens in NEW tab)
     if (currentEmail === ADMIN_EMAIL) {
-      console.log('🔐 Admin email detected, opening admin dashboard in new tab');
+      // // console.log('🔐 Admin email detected, opening admin dashboard in new tab');
       const adminWindow = window.open('/dashboard/admin/dashboard', '_blank');
       if (adminWindow) {
-        console.log('✅ Admin dashboard opened in new tab');
+        // // console.log('✅ Admin dashboard opened in new tab');
         toast.success('Admin Dashboard opened in new tab!', { duration: 4000 });
         navigate('/', { replace: true });
       } else {
@@ -44,7 +44,7 @@ const Login = () => {
     
     // Force vendor routing for specific email (same tab)
     if (currentEmail === VENDOR_EMAIL || role === 'vendor') {
-      console.log('🏪 Vendor email/role detected, redirecting to vendor dashboard in same tab');
+      // // console.log('🏪 Vendor email/role detected, redirecting to vendor dashboard in same tab');
       toast.success('Welcome Vendor!', { duration: 3000 });
       navigate('/dashboard/vendor/profile', { replace: true });
       return;
@@ -54,7 +54,7 @@ const Login = () => {
     if (role === 'admin') {
       const adminWindow = window.open('/dashboard/admin/dashboard', '_blank');
       if (adminWindow) {
-        console.log('✅ Admin dashboard opened in new tab');
+        // // console.log('✅ Admin dashboard opened in new tab');
         toast.success('Admin Dashboard opened in new tab!', { duration: 4000 });
         navigate('/', { replace: true });
       } else {
@@ -63,14 +63,14 @@ const Login = () => {
         navigate('/dashboard/admin/dashboard', { replace: true });
       }
     } else {
-      console.log('👤 User role detected, redirecting to user dashboard');
+      // // console.log('👤 User role detected, redirecting to user dashboard');
       navigate('/dashboard/user/profile', { replace: true });
     }
   };
 
   // Redirect if already logged in
   useEffect(() => {
-    console.log('👤 Login useEffect - user:', user?.email, 'role:', userRole);
+    // // console.log('👤 Login useEffect - user:', user?.email, 'role:', userRole);
     if (user && userRole) {
       redirectByRole(user.email, userRole);
     }
@@ -79,12 +79,12 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('🔄 Starting login process for:', email);
+    // // console.log('🔄 Starting login process for:', email);
     
     try {
       // Step 1: Firebase Authentication
       const firebaseResult = await login(email, password);
-      console.log('✅ Firebase login successful for:', email);
+      // // console.log('✅ Firebase login successful for:', email);
       
       // Step 2: Get user role from backend
       const response = await api.post('/users/jwt', { 
@@ -92,7 +92,7 @@ const Login = () => {
       });
       
       const { user: backendUser, token } = response.data;
-      console.log('✅ Backend authentication successful:', backendUser);
+      // // console.log('✅ Backend authentication successful:', backendUser);
       
       // Step 3: Store token and user data
       localStorage.setItem('token', token);
@@ -109,17 +109,17 @@ const Login = () => {
       setTimeout(() => {
         switch (backendUser.role) {
           case 'admin':
-            console.log('🔐 Redirecting to admin dashboard');
+            // // console.log('🔐 Redirecting to admin dashboard');
             toast.success('Welcome Admin!', { duration: 3000 });
             navigate('/dashboard/admin/dashboard', { replace: true });
             break;
           case 'vendor':
-            console.log('🏪 Redirecting to vendor dashboard');
+            // // console.log('🏪 Redirecting to vendor dashboard');
             toast.success('Welcome Vendor!', { duration: 3000 });
             navigate('/dashboard/vendor/profile', { replace: true });
             break;
           default:
-            console.log('👤 Redirecting to home page');
+            // // console.log('👤 Redirecting to home page');
             toast.success('Welcome back!', { duration: 3000 });
             navigate('/', { replace: true });
             break;
@@ -157,12 +157,12 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setSocialLoading({ ...socialLoading, google: true });
-    console.log('🔄 Starting Google login process');
+    // // console.log('🔄 Starting Google login process');
     
     try {
       // Step 1: Firebase Google Authentication
       const result = await loginWithGoogle();
-      console.log('✅ Google login successful:', result?.user?.email);
+      // // console.log('✅ Google login successful:', result?.user?.email);
       
       // Step 2: Get user role from backend
       const response = await api.post('/users/jwt', { 
@@ -170,7 +170,7 @@ const Login = () => {
       });
       
       const { user: backendUser, token } = response.data;
-      console.log('✅ Backend Google authentication successful:', backendUser);
+      // // console.log('✅ Backend Google authentication successful:', backendUser);
       
       // Step 3: Store token and user data
       localStorage.setItem('token', token);
@@ -187,17 +187,17 @@ const Login = () => {
       setTimeout(() => {
         switch (backendUser.role) {
           case 'admin':
-            console.log('🔐 Google: Redirecting to admin dashboard');
+            // // console.log('🔐 Google: Redirecting to admin dashboard');
             toast.success('Welcome Admin!', { duration: 3000 });
             navigate('/dashboard/admin/dashboard', { replace: true });
             break;
           case 'vendor':
-            console.log('🏪 Google: Redirecting to vendor dashboard');
+            // // console.log('🏪 Google: Redirecting to vendor dashboard');
             toast.success('Welcome Vendor!', { duration: 3000 });
             navigate('/dashboard/vendor/profile', { replace: true });
             break;
           default:
-            console.log('👤 Google: Redirecting to home page');
+            // // console.log('👤 Google: Redirecting to home page');
             toast.success('Welcome back!', { duration: 3000 });
             navigate('/', { replace: true });
             break;
@@ -586,3 +586,4 @@ const Login = () => {
 };
 
 export default Login;
+

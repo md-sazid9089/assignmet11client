@@ -70,7 +70,7 @@ const AdminDashboard = () => {
     
     // Auto-refresh every 30 seconds
     const refreshInterval = setInterval(() => {
-      console.log('🔄 Auto-refreshing admin dashboard...');
+      // // console.log('🔄 Auto-refreshing admin dashboard...');
       fetchAllData();
     }, 30000);
     
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
           if (response.data.success && response.data.user._id) {
             userId = response.data.user._id;
             localStorage.setItem('userId', userId);
-            console.log('✅ UserId fetched and stored:', userId);
+            // // console.log('✅ UserId fetched and stored:', userId);
             toast.success('Session restored!');
           } else {
             throw new Error('Failed to get userId from backend');
@@ -108,13 +108,13 @@ const AdminDashboard = () => {
         }
       }
       
-      console.log('🔄 Fetching all admin dashboard data...');
+      // // console.log('🔄 Fetching all admin dashboard data...');
       await Promise.all([
         fetchStats(),
         fetchBookings(),
         fetchTickets(),
       ]);
-      console.log('✅ All admin data fetched successfully');
+      // // console.log('✅ All admin data fetched successfully');
     } catch (error) {
       console.error('❌ Error fetching data:', error);
       toast.error('Failed to load dashboard data');
@@ -143,11 +143,11 @@ const AdminDashboard = () => {
         })
       ]);
 
-      console.log('📊 Admin Stats Data:');
-      console.log('Tickets:', ticketsRes.data.tickets?.length || 0);
-      console.log('Bookings:', bookingsRes.data.data?.length || 0);
-      console.log('Users:', usersRes.data.users?.length || 0);
-      console.log('Transactions:', transactionsRes.data.transactions?.length || 0);
+      // // console.log('📊 Admin Stats Data:');
+      // // console.log('Tickets:', ticketsRes.data.tickets?.length || 0);
+      // // console.log('Bookings:', bookingsRes.data.data?.length || 0);
+      // // console.log('Users:', usersRes.data.users?.length || 0);
+      // // console.log('Transactions:', transactionsRes.data.transactions?.length || 0);
 
       const allUsers = usersRes.data.users || [];
       const allTransactions = transactionsRes.data.transactions || [];
@@ -171,11 +171,11 @@ const AdminDashboard = () => {
       // Count successful bookings
       const paidBookings = allBookings.filter(booking => booking.status === 'paid');
       
-      console.log('📊 Calculated Stats:');
-      console.log('Total Revenue (from successful transactions):', totalRevenue);
-      console.log('Total Users:', allUsers.length, '(Vendors:', vendors.length, 'Users:', regularUsers.length, 'Admins:', admins.length, ')');
-      console.log('Total Tickets:', allTickets.length, '(Approved:', approvedTickets.length, 'Pending:', pendingTickets.length, ')');
-      console.log('Total Bookings:', allBookings.length, '(Paid:', paidBookings.length, ')');
+      // // console.log('📊 Calculated Stats:');
+      // // console.log('Total Revenue (from successful transactions):', totalRevenue);
+      // // console.log('Total Users:', allUsers.length, '(Vendors:', vendors.length, 'Users:', regularUsers.length, 'Admins:', admins.length, ')');
+      // // console.log('Total Tickets:', allTickets.length, '(Approved:', approvedTickets.length, 'Pending:', pendingTickets.length, ')');
+      // // console.log('Total Bookings:', allBookings.length, '(Paid:', paidBookings.length, ')');
       
       setStats({
         totalTickets: allTickets.length,
@@ -205,12 +205,7 @@ const AdminDashboard = () => {
         headers: { 'x-user-id': userId }
       });
       const fetchedBookings = response.data.data || [];
-      console.log('📋 Admin Dashboard - Bookings fetched:', fetchedBookings.length);
-      console.log('Sample booking with unique ID:', fetchedBookings[0] ? {
-        bookingId: fetchedBookings[0].bookingId,
-        userName: fetchedBookings[0].userName,
-        ticketTitle: fetchedBookings[0].ticketTitle
-      } : 'No bookings found');
+      // Bookings fetched successfully
       setBookings(fetchedBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -221,34 +216,27 @@ const AdminDashboard = () => {
   const fetchTickets = async () => {
     try {
       const userId = localStorage.getItem('userId');
-      console.log('🎫 Fetching admin tickets with userId:', userId);
+      // // console.log('🎫 Fetching admin tickets with userId:', userId);
       
       const response = await axios.get(`${API_URL}/tickets/admin/all`, {
         headers: { 'x-user-id': userId }
       });
       
-      console.log('📦 Raw Admin Tickets Response:', response.data);
-      console.log('✅ Success:', response.data.success);
-      console.log('🎫 Tickets Array:', response.data.tickets);
+      // // console.log('📦 Raw Admin Tickets Response:', response.data);
+      // // console.log('✅ Success:', response.data.success);
+      // // console.log('🎫 Tickets Array:', response.data.tickets);
       
       const fetchedTickets = response.data.tickets || [];
-      console.log('🎫 Admin Dashboard - Tickets fetched:', fetchedTickets.length);
+      // // console.log('🎫 Admin Dashboard - Tickets fetched:', fetchedTickets.length);
       
       if (fetchedTickets.length > 0) {
-        console.log('📝 Sample ticket:', {
-          id: fetchedTickets[0]._id,
-          title: fetchedTickets[0].title,
-          from: fetchedTickets[0].from,
-          to: fetchedTickets[0].to,
-          vendor: fetchedTickets[0].vendorEmail,
-          status: fetchedTickets[0].verificationStatus
-        });
+        // Sample ticket available
       } else {
         console.warn('⚠️ No tickets returned from backend!');
       }
       
       setTickets(fetchedTickets);
-      console.log('✅ Tickets state updated, count:', fetchedTickets.length);
+      // // console.log('✅ Tickets state updated, count:', fetchedTickets.length);
     } catch (error) {
       console.error('Error fetching tickets:', error);
     }
@@ -405,7 +393,7 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => {
-                console.log('🔄 Manual refresh triggered');
+                // // console.log('🔄 Manual refresh triggered');
                 fetchAllData();
                 toast.success('Dashboard refreshed!');
               }}
@@ -1049,3 +1037,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

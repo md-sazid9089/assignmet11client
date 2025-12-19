@@ -26,7 +26,7 @@ const stripePromise = loadStripe(
 if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
   console.error('❌ VITE_STRIPE_PUBLISHABLE_KEY is not set in environment variables');
 } else {
-  console.log('✅ Stripe publishable key loaded:', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 20) + '...');
+  // // console.log('✅ Stripe publishable key loaded:', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 20) + '...');
 }
 
 // Slate & Clay theme styles for CardElement
@@ -92,12 +92,7 @@ const CheckoutForm = ({
       }
 
       // Step 1: Create Payment Intent
-      console.log('🏦 Creating payment intent...', {
-        amount,
-        currency,
-        userId,
-        bookingId: bookingData?.bookingId || null,
-      });
+      // // console.log('🏦 Creating payment intent...');
       
       const paymentIntentResponse = await axios.post(
         `${import.meta.env.VITE_API_URL}/payment/create-intent`,
@@ -117,7 +112,7 @@ const CheckoutForm = ({
       const { clientSecret, paymentIntentId } = paymentIntentResponse.data;
 
       // Step 2: Confirm Card Payment
-      console.log('💳 Confirming card payment...');
+      // // console.log('💳 Confirming card payment...');
       const cardElement = elements.getElement(CardElement);
       
       const result = await stripe.confirmCardPayment(clientSecret, {
@@ -154,7 +149,7 @@ const CheckoutForm = ({
         }
       } else {
         // Payment succeeded
-        console.log('✅ Payment succeeded:', result.paymentIntent);
+        // // console.log('✅ Payment succeeded:', result.paymentIntent);
         setSucceeded(true);
         toast.success('Payment successful!');
 
@@ -175,7 +170,7 @@ const CheckoutForm = ({
             }
           );
 
-          console.log('📊 Payment confirmed on backend:', confirmResponse.data);
+          // // console.log('📊 Payment confirmed on backend:', confirmResponse.data);
 
           // Call success callback
           if (onSuccess) {

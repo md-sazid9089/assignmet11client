@@ -23,7 +23,7 @@ const UserDashboard = () => {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['user-dashboard'],
     queryFn: async () => {
-      console.log('📊 User fetching dashboard data...');
+      // // console.log('📊 User fetching dashboard data...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -61,12 +61,7 @@ const UserDashboard = () => {
         .filter(t => t.status === 'Success' && new Date(t.date).getMonth() === new Date().getMonth())
         .reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      console.log('✅ User dashboard data calculated:', {
-        totalBookings,
-        totalSpent,
-        paidBookings: paidBookings.length,
-        pendingBookings: pendingBookings.length
-      });
+      // // console.log('✅ User dashboard data calculated');
 
       return {
         bookings,

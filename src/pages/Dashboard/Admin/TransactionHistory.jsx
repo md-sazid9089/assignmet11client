@@ -26,7 +26,7 @@ const AdminTransactionHistory = () => {
   const { data: transactionData, isLoading, error } = useQuery({
     queryKey: ['admin-transactions'],
     queryFn: async () => {
-      console.log('📊 Admin fetching all transactions...');
+      // // console.log('📊 Admin fetching all transactions...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -42,7 +42,7 @@ const AdminTransactionHistory = () => {
         }
       );
       
-      console.log('✅ Admin transactions fetched:', response.data.transactions?.length || 0);
+      // // console.log('✅ Admin transactions fetched:', response.data.transactions?.length || 0);
       return response.data;
     },
     onError: (error) => {

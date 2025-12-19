@@ -20,7 +20,7 @@ const Contact = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    // // console.log(data);
     toast.success("Message sent successfully! We'll get back to you soon.");
     reset();
   };
@@ -238,3 +238,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

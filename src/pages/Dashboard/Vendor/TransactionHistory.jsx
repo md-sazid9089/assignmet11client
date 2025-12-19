@@ -25,7 +25,7 @@ const VendorTransactionHistory = () => {
   const { data: transactions = [], isLoading, error } = useQuery({
     queryKey: ['vendor-transactions'],
     queryFn: async () => {
-      console.log('📊 Vendor fetching transaction history...');
+      // // console.log('📊 Vendor fetching transaction history...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -41,7 +41,7 @@ const VendorTransactionHistory = () => {
         }
       );
       
-      console.log('✅ Vendor transactions fetched:', response.data.transactions?.length || 0);
+      // // console.log('✅ Vendor transactions fetched:', response.data.transactions?.length || 0);
       return response.data.transactions || [];
     },
     onError: (error) => {

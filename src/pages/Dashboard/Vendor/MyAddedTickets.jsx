@@ -32,7 +32,7 @@ const MyAddedTickets = () => {
         }
       );
       
-      console.log('✅ Fetched vendor tickets:', response.data);
+      // // console.log('✅ Fetched vendor tickets:', response.data);
       return response.data.tickets || response.data;
     },
   });

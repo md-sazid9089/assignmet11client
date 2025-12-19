@@ -34,22 +34,22 @@ const AuthProviders = ({ children }) => {
 
   const login = async (email, password) => {
     setLoading(true);
-    console.log('🔄 AuthProvider: Starting login for:', email);
+    // // console.log('🔄 AuthProvider: Starting login for:', email);
     
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ AuthProvider: Firebase login successful');
+      // // console.log('✅ AuthProvider: Firebase login successful');
       
       // Force admin role for specific email
       if (email === ADMIN_EMAIL) {
-        console.log('🔐 Admin email detected, forcing admin role');
+        // // console.log('🔐 Admin email detected, forcing admin role');
         setUserRole('admin');
         toast.success('Welcome Admin!', { duration: 3000 });
       }
       
       // Force vendor role for specific email
       if (email === VENDOR_EMAIL) {
-        console.log('🏪 Vendor email detected, forcing vendor role');
+        // // console.log('🏪 Vendor email detected, forcing vendor role');
         setUserRole('vendor');
         toast.success('Welcome Vendor!', { duration: 3000 });
       }
@@ -65,22 +65,22 @@ const AuthProviders = ({ children }) => {
 
   const loginWithGoogle = async () => {
     setLoading(true);
-    console.log('🔄 AuthProvider: Starting Google login');
+    // // console.log('🔄 AuthProvider: Starting Google login');
     
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log('✅ AuthProvider: Google login successful for:', result.user.email);
+      // // console.log('✅ AuthProvider: Google login successful for:', result.user.email);
       
       // Force admin role for specific email
       if (result.user.email === ADMIN_EMAIL) {
-        console.log('🔐 Admin email detected via Google, forcing admin role');
+        // // console.log('🔐 Admin email detected via Google, forcing admin role');
         setUserRole('admin');
         toast.success('Welcome Admin!', { duration: 3000 });
       }
       
       // Force vendor role for specific email
       if (result.user.email === VENDOR_EMAIL) {
-        console.log('🏪 Vendor email detected via Google, forcing vendor role');
+        // // console.log('🏪 Vendor email detected via Google, forcing vendor role');
         setUserRole('vendor');
         toast.success('Welcome Vendor!', { duration: 3000 });
       }
@@ -127,13 +127,13 @@ const AuthProviders = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log('🔄 AuthProvider: Auth state changed, user:', currentUser?.email);
+      // // console.log('🔄 AuthProvider: Auth state changed, user:', currentUser?.email);
       setUser(currentUser);
       
       if (currentUser) {
         // Create or update user in backend and get user data
         try {
-          console.log('🔄 AuthProvider: Calling backend to create/update user');
+          // // console.log('🔄 AuthProvider: Calling backend to create/update user');
           const response = await api.post("/users/create", {
             name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
             email: currentUser.email,
@@ -141,26 +141,26 @@ const AuthProviders = ({ children }) => {
             firebaseUid: currentUser.uid,
           });
           
-          console.log('✅ AuthProvider: Backend response:', response.data);
+          // // console.log('✅ AuthProvider: Backend response:', response.data);
           
           if (response.data.success && response.data.user._id) {
             localStorage.setItem("userId", response.data.user._id);
-            console.log('📊 Backend User Role:', response.data.user.role);
+            // // console.log('📊 Backend User Role:', response.data.user.role);
             
             // Force admin role for specific email - ALWAYS override backend
             if (currentUser.email === ADMIN_EMAIL) {
-              console.log('🔐 Admin email detected, forcing admin role (overriding backend)');
+              // // console.log('🔐 Admin email detected, forcing admin role (overriding backend)');
               setUserRole('admin');
             }
             // Force vendor role for specific email - ALWAYS override backend
             else if (currentUser.email === VENDOR_EMAIL) {
-              console.log('🏪 Vendor email detected, forcing vendor role (overriding backend)');
+              // // console.log('🏪 Vendor email detected, forcing vendor role (overriding backend)');
               setUserRole('vendor');
             }
             else {
               // Set role from backend for other users
               setUserRole(response.data.user.role);
-              console.log('✅ Role set from backend:', response.data.user.role);
+              // // console.log('✅ Role set from backend:', response.data.user.role);
             }
           }
         } catch (error) {
@@ -172,15 +172,15 @@ const AuthProviders = ({ children }) => {
           
           // Even if backend fails, still set roles for specific emails
           if (currentUser.email === ADMIN_EMAIL) {
-            console.log('🔐 Admin email detected (backend error), forcing admin role');
+            // // console.log('🔐 Admin email detected (backend error), forcing admin role');
             setUserRole('admin');
           } else if (currentUser.email === VENDOR_EMAIL) {
-            console.log('🏪 Vendor email detected (backend error), forcing vendor role');
+            // // console.log('🏪 Vendor email detected (backend error), forcing vendor role');
             setUserRole('vendor');
           }
         }
       } else {
-        console.log('👋 AuthProvider: User logged out');
+        // // console.log('👋 AuthProvider: User logged out');
         setUserRole(null);
         localStorage.removeItem("userId");
       }
@@ -212,3 +212,4 @@ const AuthProviders = ({ children }) => {
 };
 
 export default AuthProviders;
+

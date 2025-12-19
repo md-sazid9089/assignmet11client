@@ -24,10 +24,7 @@ const AddTicket = () => {
     mutationFn: async (ticketData) => {
       let userId = localStorage.getItem("userId");
       
-      console.log('🔍 Checking localStorage:', {
-        userId,
-        allLocalStorage: { ...localStorage }
-      });
+      // // console.log('🔍 Checking localStorage');
       
       // If userId is not in localStorage, try to create/fetch it from backend
       if (!userId) {
@@ -38,7 +35,7 @@ const AddTicket = () => {
         }
         
         try {
-          console.log('📤 Fetching userId from backend for:', user.email);
+          // // console.log('📤 Fetching userId from backend for:', user.email);
           const response = await axios.post(
             `${import.meta.env.VITE_API_URL}/users/create`,
             {
@@ -49,12 +46,12 @@ const AddTicket = () => {
             }
           );
           
-          console.log('📥 Backend response:', response.data);
+          // // console.log('📥 Backend response:', response.data);
           
           if (response.data.success && response.data.user._id) {
             userId = response.data.user._id;
             localStorage.setItem("userId", userId);
-            console.log('✅ UserId fetched and stored:', userId);
+            // // console.log('✅ UserId fetched and stored:', userId);
           } else {
             console.error('❌ Backend returned success but no user ID:', response.data);
             throw new Error("Failed to get user ID from backend");
@@ -70,7 +67,7 @@ const AddTicket = () => {
         }
       }
       
-      console.log('🔐 Sending request with userId:', userId);
+      // // console.log('🔐 Sending request with userId:', userId);
       
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/tickets`,
@@ -107,7 +104,7 @@ const AddTicket = () => {
   });
 
   const onSubmit = async (data) => {
-    console.log('📝 Form data received:', data);
+    // // console.log('📝 Form data received');
     
     if (!data.imageUrl || !data.imageUrl.trim()) {
       toast.error("Please provide an image URL");
@@ -131,8 +128,8 @@ const AddTicket = () => {
       vendorEmail: user.email,
     };
 
-    console.log('📤 Sending ticket data to backend:', ticketData);
-    console.log('🖼️ ImageURL being sent:', ticketData.imageUrl);
+    // // console.log('📤 Sending ticket data to backend:', ticketData);
+    // // console.log('🖼️ ImageURL being sent:', ticketData.imageUrl);
     addTicketMutation.mutate(ticketData);
   };
 
@@ -371,3 +368,4 @@ const AddTicket = () => {
 };
 
 export default AddTicket;
+

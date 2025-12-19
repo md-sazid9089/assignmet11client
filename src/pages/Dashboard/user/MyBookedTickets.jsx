@@ -151,7 +151,7 @@ const MyBookedTickets = () => {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["userBookings"],
     queryFn: async () => {
-      console.log('🎫 Fetching user bookings...');
+      // // console.log('🎫 Fetching user bookings...');
       const userId = localStorage.getItem("userId");
       
       if (!userId) {
@@ -164,8 +164,8 @@ const MyBookedTickets = () => {
         { headers: { 'x-user-id': userId } }
       );
       
-      console.log('📦 Bookings response:', response.data);
-      console.log('✅ Found bookings:', response.data.bookings?.length || 0);
+      // // console.log('📦 Bookings response:', response.data);
+      // // console.log('✅ Found bookings:', response.data.bookings?.length || 0);
       
       // Backend returns { success: true, bookings: [...] }
       return response.data.bookings || [];
@@ -180,7 +180,7 @@ const MyBookedTickets = () => {
     try {
       const userId = localStorage.getItem('userId');
       
-      console.log('🗑️ Cancelling booking:', cancelBooking.bookingId || cancelBooking._id);
+      // // console.log('🗑️ Cancelling booking:', cancelBooking.bookingId || cancelBooking._id);
       
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/bookings/${cancelBooking._id}`,
@@ -771,3 +771,4 @@ const MyBookedTickets = () => {
 };
 
 export default MyBookedTickets;
+

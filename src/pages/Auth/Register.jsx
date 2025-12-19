@@ -33,11 +33,11 @@ const Register = () => {
     try {
       // Step 1: Create Firebase user
       const result = await createUser(data.email, data.password);
-      console.log('✅ Firebase user created:', result.user.email);
+      // // console.log('✅ Firebase user created:', result.user.email);
       
       // Step 2: Update Firebase profile
       await updateUserProfile(data.name, data.photoURL || '');
-      console.log('✅ Profile updated');
+      // // console.log('✅ Profile updated');
       
       // Step 3: Create backend user with selected role
       const backendResponse = await api.post('/users/create', {
@@ -48,7 +48,7 @@ const Register = () => {
         role: selectedRole
       });
       
-      console.log('✅ Backend user created:', backendResponse.data.user);
+      // // console.log('✅ Backend user created:', backendResponse.data.user);
       
       // Step 4: Generate token
       const tokenResponse = await api.post('/users/jwt', {
@@ -90,7 +90,7 @@ const Register = () => {
     try {
       // Step 1: Google authentication
       const result = await loginWithGoogle();
-      console.log('✅ Google registration:', result.user.email);
+      // // console.log('✅ Google registration:', result.user.email);
       
       // Step 2: Create backend user with selected role
       const backendResponse = await api.post('/users/create', {
@@ -516,3 +516,4 @@ const Register = () => {
 };
 
 export default Register;
+

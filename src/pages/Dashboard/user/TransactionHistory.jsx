@@ -22,7 +22,7 @@ const TransactionHistory = () => {
   const { data: transactions = [], isLoading, error } = useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
-      console.log('📊 Fetching transaction history...');
+      // // console.log('📊 Fetching transaction history...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -38,7 +38,7 @@ const TransactionHistory = () => {
         }
       );
       
-      console.log('✅ Transactions fetched:', response.data.transactions?.length || 0);
+      // // console.log('✅ Transactions fetched:', response.data.transactions?.length || 0);
       return response.data.transactions || [];
     },
     onError: (error) => {
@@ -303,3 +303,4 @@ const TransactionHistory = () => {
 };
 
 export default TransactionHistory;
+

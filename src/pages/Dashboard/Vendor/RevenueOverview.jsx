@@ -22,7 +22,7 @@ const RevenueOverview = () => {
   const { data: revenueData, isLoading } = useQuery({
     queryKey: ["vendorRevenue"],
     queryFn: async () => {
-      console.log('📊 Vendor fetching revenue data...');
+      // // console.log('📊 Vendor fetching revenue data...');
       const userId = localStorage.getItem('userId');
       
       if (!userId) {
@@ -55,12 +55,7 @@ const RevenueOverview = () => {
       const totalRevenue = successfulTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
       const paidBookings = bookings.filter(b => b.status === 'paid');
       
-      console.log('✅ Vendor revenue data:', {
-        totalRevenue,
-        transactions: transactions.length,
-        tickets: tickets.length,
-        bookings: bookings.length
-      });
+      // // console.log('✅ Vendor revenue data');
       
       return {
         totalRevenue,
@@ -283,3 +278,4 @@ const RevenueOverview = () => {
 };
 
 export default RevenueOverview;
+

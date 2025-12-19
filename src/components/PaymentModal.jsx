@@ -60,12 +60,6 @@ const PaymentModal = ({ isOpen, onClose, bookingData, onPaymentSuccess }) => {
     // Simulate payment processing
     setTimeout(async () => {
       try {
-        console.log("💳 Processing payment with:", {
-          method: selectedMethod.name,
-          transactionId: transactionId || "N/A",
-          pin: pin ? "****" : "N/A",
-        });
-
         // Call the actual booking API
         const bookingResponse = await onPaymentSuccess({
           ...bookingData,
@@ -257,3 +251,4 @@ const PaymentModal = ({ isOpen, onClose, bookingData, onPaymentSuccess }) => {
 };
 
 export default PaymentModal;
+
