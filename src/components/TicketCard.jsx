@@ -1,85 +1,181 @@
 import { Link } from "react-router";
-import { FaBus, FaTrain, FaShip, FaPlane } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { Bus, Train, Ship, Plane, MapPin, ImageOff } from "lucide-react";
+import { useState } from "react";
 
 const TicketCard = ({ ticket }) => {
+  const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
   const getTransportIcon = (type) => {
+    const iconClass = "w-5 h-5";
     switch (type?.toLowerCase()) {
       case "bus":
-        return <FaBus className="text-2xl" />;
+        return <Bus className={iconClass} />;
       case "train":
-        return <FaTrain className="text-2xl" />;
+        return <Train className={iconClass} />;
       case "launch":
-        return <FaShip className="text-2xl" />;
+        return <Ship className={iconClass} />;
       case "plane":
-        return <FaPlane className="text-2xl" />;
+        return <Plane className={iconClass} />;
       default:
-        return <FaBus className="text-2xl" />;
+        return <Bus className={iconClass} />;
+    }
+  };
+
+  const getTransportColor = (type) => {
+    switch (type?.toLowerCase()) {
+      case "bus":
+        return "from-blue-500 to-cyan-500";
+      case "train":
+        return "from-purple-500 to-pink-500";
+      case "launch":
+        return "from-teal-500 to-emerald-500";
+      case "plane":
+        return "from-orange-500 to-red-500";
+      default:
+        return "from-[#b35a44] to-cyan-500";
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full">
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={ticket.imageUrl}
-          alt={ticket.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute top-4 right-4 bg-[#1FA0D6] text-white px-3 py-1 rounded-full text-sm font-semibold">
-          {ticket.transportType}
-        </div>
-      </div>
-
-      <div className="p-6 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 line-clamp-2 min-h-[3.5rem]">
-          {ticket.title}
-        </h3>
-
-        <p className="text-gray-600 dark:text-gray-300 mb-3 min-h-[1.5rem]">
-          {ticket.from && ticket.to
-            ? `${ticket.from} → ${ticket.to}`
-            : "\u00A0"}
-        </p>
-
-        <div className="flex items-center space-x-2 text-[#1FA0D6] mb-3">
-          {getTransportIcon(ticket.transportType)}
-          <span className="font-semibold">{ticket.transportType}</span>
-        </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <p className="text-2xl font-bold text-[#1FA0D6]">৳{ticket.pricePerUnit}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Available: {ticket.quantity}
-            </p>
-          </div>
-        </div>
-
-        <div className="mb-4 min-h-[2rem]">
-          {ticket.perks && ticket.perks.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {ticket.perks.slice(0, 3).map((perk, index) => (
-                <span
-                  key={index}
-                  className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded"
-                >
-                  {perk}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <Link
-          to={`/ticket/${ticket._id}`}
-          className="block w-full text-center bg-[#09335b] text-white py-2 rounded-lg hover:bg-[linear-gradient(159deg,#377CBD_0%,#09335B_50%,#09335B_100%)] transition font-semibold mt-auto"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ 
+        y: -8,
+        transition: { duration: 0.2 }
+      }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="group relative"
+    >
+      {/* Glassmorphic Container with Gradient Border */}
+      <div className="relative bg-slate-900/40 backdrop-blur-md border border-transparent bg-gradient-to-r from-cyan-500/20 via-transparent to-[#b35a44]/20 p-[1px] rounded-2xl transition-all duration-500">
+        <motion.div 
+          className="bg-slate-900/60 backdrop-blur-xl rounded-2xl overflow-hidden h-full flex flex-col"
+          animate={{
+            boxShadow: isHovered 
+              ? "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(179, 90, 68, 0.3)"
+              : "0 10px 25px -5px rgba(0, 0, 0, 0.3)"
+          }}
         >
-          See Details
-        </Link>
+          {/* Image Section */}
+          <div className="relative h-48 overflow-hidden">
+            {!imageError && ticket.imageUrl ? (
+              <motion.img
+                src={ticket.imageUrl}
+                alt={ticket.title}
+                className="w-full h-full object-cover"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.4 }}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                <ImageOff className="w-12 h-12 text-slate-600" />
+              </div>
+            )}
+            
+            {/* Transport Type Badge */}
+            <motion.div 
+              className="absolute top-4 right-4"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="bg-[#b35a44]/20 backdrop-blur-sm border border-[#b35a44]/30 text-[#b35a44] px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                {getTransportIcon(ticket.transportType)}
+                {ticket.transportType}
+              </div>
+            </motion.div>
+
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+          </div>
+
+          {/* Content Section */}
+          <div className="p-6 flex flex-col flex-grow">
+            {/* Title */}
+            <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 min-h-[3rem]">
+              {ticket.title}
+            </h3>
+
+            {/* Route */}
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="w-4 h-4 text-cyan-400" />
+              <p className="text-white font-bold text-lg">
+                {ticket.from && ticket.to
+                  ? `${ticket.from} → ${ticket.to}`
+                  : "Route not specified"}
+              </p>
+            </div>
+
+            {/* Price with Clay Glow */}
+            <div className="flex justify-between items-end mb-6">
+              <div>
+                <p className="text-slate-400 text-sm mb-1">Price per ticket</p>
+                <motion.p 
+                  className="text-3xl font-bold text-white"
+                  style={{
+                    textShadow: isHovered 
+                      ? "0 0 20px rgba(179, 90, 68, 0.8), 0 0 40px rgba(179, 90, 68, 0.4)"
+                      : "0 0 10px rgba(179, 90, 68, 0.5)"
+                  }}
+                  animate={{
+                    textShadow: isHovered 
+                      ? "0 0 20px rgba(179, 90, 68, 0.8), 0 0 40px rgba(179, 90, 68, 0.4)"
+                      : "0 0 10px rgba(179, 90, 68, 0.5)"
+                  }}
+                >
+                  ৳{ticket.pricePerUnit?.toLocaleString() || 0}
+                </motion.p>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-400 text-sm">Available</p>
+                <p className="text-white font-semibold">{ticket.quantity}</p>
+              </div>
+            </div>
+
+            {/* Perks */}
+            {ticket.perks && ticket.perks.length > 0 && (
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                  {ticket.perks.slice(0, 3).map((perk, index) => (
+                    <span
+                      key={index}
+                      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 text-slate-300 text-xs px-3 py-1 rounded-full"
+                    >
+                      {perk}
+                    </span>
+                  ))}
+                  {ticket.perks.length > 3 && (
+                    <span className="bg-slate-800/30 text-slate-400 text-xs px-3 py-1 rounded-full">
+                      +{ticket.perks.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* See Details Button */}
+            <Link
+              to={`/ticket/${ticket._id}`}
+              className="mt-auto block"
+            >
+              <motion.div
+                className="w-full py-3 px-6 bg-slate-800 text-white rounded-xl border border-slate-700/50 text-center font-semibold transition-all duration-300 hover:border-transparent"
+                whileHover={{
+                  background: "linear-gradient(135deg, #b35a44 0%, #d97757 100%)",
+                  boxShadow: "0 8px 25px rgba(179, 90, 68, 0.4)"
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                See Details
+              </motion.div>
+            </Link>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
