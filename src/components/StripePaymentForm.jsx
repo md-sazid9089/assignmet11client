@@ -19,8 +19,15 @@ import { CreditCard, Shield } from 'lucide-react';
 
 // Initialize Stripe
 const stripePromise = loadStripe(
-  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key'
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
 );
+
+// Debug Stripe key loading
+if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
+  console.error('❌ VITE_STRIPE_PUBLISHABLE_KEY is not set in environment variables');
+} else {
+  console.log('✅ Stripe publishable key loaded:', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 20) + '...');
+}
 
 // Slate & Clay theme styles for CardElement
 const cardElementOptions = {
@@ -66,7 +73,9 @@ const CheckoutForm = ({
     event.preventDefault();
 
     if (!stripe || !elements) {
-      setError('Stripe is not loaded yet. Please try again.');
+      const errorMsg = 'Stripe is not loaded yet. Please check your internet connection and try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -83,7 +92,18 @@ const CheckoutForm = ({
       }
 
       // Step 1: Create Payment Intent
-      console.log('🏦 Creating payment intent...');
+      console.log('🏦 Creating payment intent...', {
+        amount,
+        currency,
+        userId,
+        bookingId: bookingData?.bookingId || null,
+      });
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found. Please login again.');
+      }
+      
       const paymentIntentResponse = await axios.post(
         `${import.meta.env.VITE_API_URL}/payment/create-intent`,
         {
@@ -92,7 +112,11 @@ const CheckoutForm = ({
           bookingId: bookingData?.bookingId || null,
         },
         {
-          headers: { 'x-user-id': userId }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'x-user-id': userId,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -150,7 +174,11 @@ const CheckoutForm = ({
               paymentMethod: 'Stripe',
             },
             {
-              headers: { 'x-user-id': userId }
+              headers: { 
+                'Authorization': `Bearer ${token}`,
+                'x-user-id': userId,
+                'Content-Type': 'application/json'
+              }
             }
           );
 
@@ -348,3 +376,4 @@ const StripePaymentForm = ({
 };
 
 export default StripePaymentForm;
+export { CheckoutForm };

@@ -25,7 +25,7 @@ import toast from "react-hot-toast";
 import PaymentModal from "../../components/PaymentModal";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import StripePaymentForm from '../../components/StripePaymentForm';
+import StripePaymentForm, { CheckoutForm } from '../../components/StripePaymentForm';
 import { X } from 'lucide-react';
 
 // Initialize Stripe - replace with your publishable key
@@ -936,16 +936,18 @@ const TicketDetails = () => {
 
             {/* Stripe Payment Form */}
             <Elements stripe={stripePromise}>
-              <StripePaymentForm
+              <CheckoutForm
                 amount={pendingBookingData.totalPrice}
                 currency="BDT"
-                onPaymentSuccess={handleStripePaymentSuccess}
+                bookingData={pendingBookingData}
+                onSuccess={(result) => {
+                  console.log('💳 Payment result:', result);
+                  handleStripePaymentSuccess(result.paymentIntent);
+                }}
                 onCancel={() => {
                   setShowStripePayment(false);
                   setShowModal(true);
                 }}
-                disabled={submitting}
-                bookingData={pendingBookingData}
               />
             </Elements>
           </div>
