@@ -23,6 +23,13 @@ import {
 import { IoArrowBack } from "react-icons/io5";
 import toast from "react-hot-toast";
 import PaymentModal from "../../components/PaymentModal";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import StripePaymentForm from '../../components/StripePaymentForm';
+import { X } from 'lucide-react';
+
+// Initialize Stripe - replace with your publishable key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key_here');
 
 const TicketDetails = () => {
   const { id } = useParams();
@@ -33,6 +40,7 @@ const TicketDetails = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showStripePayment, setShowStripePayment] = useState(false);
   const [bookingQuantity, setBookingQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [userRole, setUserRole] = useState(null);
@@ -127,7 +135,8 @@ const TicketDetails = () => {
 
     setPendingBookingData(bookingData);
     setShowModal(false);
-    setShowPaymentModal(true);
+    // Use Stripe payment instead of dummy payment modal
+    setShowStripePayment(true);
   };
 
   const handlePaymentSuccess = async (paymentData) => {
@@ -172,6 +181,61 @@ const TicketDetails = () => {
       console.error('❌ Booking error:', error);
       console.error('Error details:', error.response?.data);
       toast.error(error.response?.data?.message || "Failed to book ticket");
+      throw error;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleStripePaymentSuccess = async (paymentIntent) => {
+    setSubmitting(true);
+    try {
+      const userId = localStorage.getItem("userId");
+      
+      console.log('🎉 Stripe payment successful, creating booking...');
+      console.log('💳 Payment Intent ID:', paymentIntent.id);
+
+      // Create the booking with Stripe payment method
+      const bookingData = {
+        ...pendingBookingData,
+        paymentMethod: 'Stripe',
+        stripePaymentIntentId: paymentIntent.id,
+        transactionId: paymentIntent.id
+      };
+
+      const bookingResponse = await axios.post(
+        `${import.meta.env.VITE_API_URL}/bookings`,
+        bookingData,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      console.log('✅ Stripe booking created successfully:', bookingResponse.data);
+      
+      // Confirm booking and record transaction
+      const confirmationData = {
+        bookingId: bookingResponse.data.booking._id,
+        paymentMethod: 'Stripe',
+        stripePaymentIntentId: paymentIntent.id
+      };
+
+      const confirmResponse = await axios.post(
+        `${import.meta.env.VITE_API_URL}/bookings/confirm`,
+        confirmationData,
+        { headers: { 'x-user-id': userId } }
+      );
+
+      console.log('✅ Stripe booking confirmed:', confirmResponse.data);
+      
+      toast.success(`Payment successful! Booking ID: ${bookingResponse.data.booking?.bookingId}`, { duration: 5000 });
+      
+      setBookingQuantity(1);
+      setPendingBookingData(null);
+      setShowStripePayment(false);
+      navigate("/dashboard/user/bookings");
+      
+    } catch (error) {
+      console.error('❌ Stripe booking error:', error);
+      toast.error(error.response?.data?.message || "Failed to complete booking after payment");
       throw error;
     } finally {
       setSubmitting(false);
@@ -678,6 +742,63 @@ const TicketDetails = () => {
           bookingData={pendingBookingData}
           onPaymentSuccess={handlePaymentSuccess}
         />
+      )}
+
+      {/* Stripe Payment Modal */}
+      {showStripePayment && pendingBookingData && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0f172a] rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-800 relative overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Complete Payment</h2>
+              <button
+                onClick={() => {
+                  setShowStripePayment(false);
+                  setShowModal(true);
+                }}
+                disabled={submitting}
+                className="p-2 hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="mb-6 p-4 bg-slate-900 rounded-lg border border-slate-700">
+              <h3 className="font-semibold text-white mb-3">{pendingBookingData.ticketTitle}</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-slate-300">
+                  <span>Price per ticket:</span>
+                  <span>৳{(pendingBookingData.totalPrice / pendingBookingData.quantity).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Quantity:</span>
+                  <span>× {pendingBookingData.quantity}</span>
+                </div>
+                <div className="h-px bg-slate-600 my-2"></div>
+                <div className="flex justify-between text-white font-bold">
+                  <span>Total Amount:</span>
+                  <span>৳{pendingBookingData.totalPrice.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stripe Payment Form */}
+            <Elements stripe={stripePromise}>
+              <StripePaymentForm
+                amount={pendingBookingData.totalPrice}
+                currency="BDT"
+                onPaymentSuccess={handleStripePaymentSuccess}
+                onCancel={() => {
+                  setShowStripePayment(false);
+                  setShowModal(true);
+                }}
+                disabled={submitting}
+                bookingData={pendingBookingData}
+              />
+            </Elements>
+          </div>
+        </div>
       )}
     </div>
   );
