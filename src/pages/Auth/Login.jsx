@@ -5,6 +5,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiMail, FiLock, FiGithub } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import api from '../../config/api';
 import logo from '../../assets/logo.png';
 
 const ADMIN_EMAIL = 'sazid98@gmail.com';
@@ -19,6 +20,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState({ google: false, github: false });
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Helper function to redirect by role with email-specific checks
   const redirectByRole = (currentEmail, role) => {
@@ -80,21 +82,50 @@ const Login = () => {
     console.log('🔄 Starting login process for:', email);
     
     try {
-      const result = await login(email, password);
-      console.log('✅ Login successful for:', email);
-      console.log('📊 Login result:', result);
+      // Step 1: Firebase Authentication
+      const firebaseResult = await login(email, password);
+      console.log('✅ Firebase login successful for:', email);
       
-      // Force admin role check for specific email
-      if (email === ADMIN_EMAIL) {
-        console.log('🔐 Admin email login detected, forcing redirect');
-        // Redirect will happen via useEffect when userRole updates
-      }
+      // Step 2: Get user role from backend
+      const response = await api.post('/users/generate-token', { 
+        email: firebaseResult.user.email 
+      });
       
-      // Force vendor role check for specific email
-      if (email === VENDOR_EMAIL) {
-        console.log('🏪 Vendor email login detected, forcing redirect');
-        // Redirect will happen via useEffect when userRole updates
-      }
+      const { user: backendUser, token } = response.data;
+      console.log('✅ Backend authentication successful:', backendUser);
+      
+      // Step 3: Store token and user data
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', backendUser._id);
+      localStorage.setItem('userRole', backendUser.role);
+      
+      // Step 4: Show redirecting state
+      setIsLoading(false);
+      setIsRedirecting(true);
+      
+      // Step 5: Role-based redirection with smooth transition
+      const redirectDelay = 1000; // 1 second smooth transition
+      
+      setTimeout(() => {
+        switch (backendUser.role) {
+          case 'admin':
+            console.log('🔐 Redirecting to admin dashboard');
+            toast.success('Welcome Admin!', { duration: 3000 });
+            navigate('/dashboard/admin/dashboard', { replace: true });
+            break;
+          case 'vendor':
+            console.log('🏪 Redirecting to vendor dashboard');
+            toast.success('Welcome Vendor!', { duration: 3000 });
+            navigate('/dashboard/vendor/profile', { replace: true });
+            break;
+          default:
+            console.log('👤 Redirecting to home page');
+            toast.success('Welcome back!', { duration: 3000 });
+            navigate('/', { replace: true });
+            break;
+        }
+        setIsRedirecting(false);
+      }, redirectDelay);
       
     } catch (error) {
       console.error('❌ Login error:', {
@@ -109,6 +140,8 @@ const Login = () => {
       // Detailed error messages
       if (error.response?.status === 500) {
         toast.error('Server error: Please check backend logs', { duration: 5000 });
+      } else if (error.response?.status === 404) {
+        toast.error('User not found. Please register first.');
       } else if (error.code === 'auth/wrong-password') {
         toast.error('Incorrect password');
       } else if (error.code === 'auth/user-not-found') {
@@ -118,25 +151,59 @@ const Login = () => {
       }
     } finally {
       setIsLoading(false);
+      setIsRedirecting(false);
     }
   };
 
-  const handleGoogleLogin = async () => {    setSocialLoading({ ...socialLoading, google: true });    console.log('🔄 Starting Google login process');
+  const handleGoogleLogin = async () => {
+    setSocialLoading({ ...socialLoading, google: true });
+    console.log('🔄 Starting Google login process');
     
     try {
+      // Step 1: Firebase Google Authentication
       const result = await loginWithGoogle();
-      console.log('✅ Google login successful for:', result?.user?.email);
-      console.log('📊 Google login result:', result);
+      console.log('✅ Google login successful:', result?.user?.email);
       
-      // Force admin role check for specific email
-      if (result?.user?.email === ADMIN_EMAIL) {
-        console.log('🔐 Admin email Google login detected');
-      }
+      // Step 2: Get user role from backend
+      const response = await api.post('/users/generate-token', { 
+        email: result.user.email 
+      });
       
-      // Force vendor role check for specific email
-      if (result?.user?.email === VENDOR_EMAIL) {
-        console.log('🏪 Vendor email Google login detected');
-      }
+      const { user: backendUser, token } = response.data;
+      console.log('✅ Backend Google authentication successful:', backendUser);
+      
+      // Step 3: Store token and user data
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', backendUser._id);
+      localStorage.setItem('userRole', backendUser.role);
+      
+      // Step 4: Show redirecting state
+      setSocialLoading({ ...socialLoading, google: false });
+      setIsRedirecting(true);
+      
+      // Step 5: Role-based redirection with smooth transition
+      const redirectDelay = 1000;
+      
+      setTimeout(() => {
+        switch (backendUser.role) {
+          case 'admin':
+            console.log('🔐 Google: Redirecting to admin dashboard');
+            toast.success('Welcome Admin!', { duration: 3000 });
+            navigate('/dashboard/admin/dashboard', { replace: true });
+            break;
+          case 'vendor':
+            console.log('🏪 Google: Redirecting to vendor dashboard');
+            toast.success('Welcome Vendor!', { duration: 3000 });
+            navigate('/dashboard/vendor/profile', { replace: true });
+            break;
+          default:
+            console.log('👤 Google: Redirecting to home page');
+            toast.success('Welcome back!', { duration: 3000 });
+            navigate('/', { replace: true });
+            break;
+        }
+        setIsRedirecting(false);
+      }, redirectDelay);
       
     } catch (error) {
       console.error('❌ Google login error:', {
@@ -149,11 +216,14 @@ const Login = () => {
       
       if (error.response?.status === 500) {
         toast.error('Server error: Please check backend logs', { duration: 5000 });
+      } else if (error.response?.status === 404) {
+        toast.error('User not found. Please register first.');
       } else {
         toast.error(error.message || 'Google login failed');
       }
     } finally {
       setSocialLoading({ ...socialLoading, google: false });
+      setIsRedirecting(false);
     }
   };
 
@@ -487,6 +557,30 @@ const Login = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Redirecting Overlay */}
+      {isRedirecting && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-slate-900/90 backdrop-blur-xl rounded-2xl p-8 text-center shadow-2xl border border-slate-700"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-[#b35a44] border-t-transparent rounded-full mx-auto mb-4"
+            />
+            <h3 className="text-xl font-semibold text-white mb-2">Redirecting...</h3>
+            <p className="text-slate-400">Taking you to your dashboard</p>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
