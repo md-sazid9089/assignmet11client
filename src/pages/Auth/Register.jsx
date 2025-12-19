@@ -51,7 +51,7 @@ const Register = () => {
       console.log('✅ Backend user created:', backendResponse.data.user);
       
       // Step 4: Generate token
-      const tokenResponse = await api.post('/users/generate-token', {
+      const tokenResponse = await api.post('/users/jwt', {
         email: result.user.email
       });
       

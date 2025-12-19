@@ -63,7 +63,6 @@ const DashboardLayout = () => {
 
   // Navigation links definitions
   const userLinks = [
-    { to: "/dashboard/user/dashboard", icon: <FaHome />, label: "Dashboard" },
     { to: "/dashboard/user/profile", icon: <FaUser />, label: "User Profile" },
     {
       to: "/dashboard/user/bookings",

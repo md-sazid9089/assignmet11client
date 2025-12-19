@@ -338,29 +338,176 @@ const TicketDetails = () => {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-500">
-              <div className="relative">
-                <img
-                  src={ticket.imageUrl}
-                  alt={ticket.title}
-                  className="w-full h-96 object-cover"
-                />
-                <div
-                  className={`absolute top-4 right-4 bg-gradient-to-r ${getTransportColor(
-                    ticket.transportType
-                  )} p-4 rounded-2xl shadow-2xl text-white backdrop-blur-sm bg-opacity-90`}
-                >
-                  {getTransportIcon(ticket.transportType)}
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    {ticket.title}
-                  </h1>
-                  <div className="flex items-center gap-2 text-white/90">
-                    <FaStar className="text-yellow-400" />
-                    <span className="text-lg font-semibold">
-                      {ticket.transportType}
-                    </span>
+            {/* Modern Glassmorphic Boarding Pass */}
+            <div className="relative bg-slate-900/40 backdrop-blur-xl border border-transparent bg-gradient-to-r from-[#b35a44]/20 via-transparent to-blue-500/20 p-[1px] rounded-3xl hover:scale-[1.02] transition-all duration-500 shadow-2xl">
+              <div className="bg-slate-900/60 backdrop-blur-xl rounded-3xl p-8 h-full">
+                <div className="flex flex-col lg:flex-row h-full">
+                  
+                  {/* Left Side - Main Ticket Info */}
+                  <div className="flex-1 lg:pr-8">
+                    {/* Transport Icon & Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${getTransportColor(ticket.transportType)} shadow-lg`}>
+                          <div className="text-white text-4xl">
+                            {getTransportIcon(ticket.transportType)}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-slate-300 text-sm font-medium">TRANSPORT</p>
+                          <p className="text-white text-xl font-bold uppercase tracking-wide">
+                            {ticket.transportType}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-slate-800/50 backdrop-blur-sm rounded-full text-slate-300 text-xs font-mono border border-slate-600/30">
+                        TICKET
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <div className="mb-6">
+                      <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+                        {ticket.title}
+                      </h1>
+                    </div>
+
+                    {/* Route Information */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="text-center">
+                          <p className="text-slate-400 text-xs font-medium mb-1">FROM</p>
+                          <p className="text-white text-xl lg:text-2xl font-bold">{ticket.from}</p>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center px-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#b35a44] shadow-lg shadow-[#b35a44]/50"></div>
+                            <div className="flex-1 h-px bg-gradient-to-r from-[#b35a44] to-blue-500"></div>
+                            <FaPlane className="text-slate-300 transform rotate-90" />
+                            <div className="flex-1 h-px bg-gradient-to-r from-blue-500 to-[#b35a44]"></div>
+                            <div className="w-3 h-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-slate-400 text-xs font-medium mb-1">TO</p>
+                          <p className="text-white text-xl lg:text-2xl font-bold">{ticket.to}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Departure Information */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+                        <p className="text-slate-400 text-xs font-medium mb-1">DEPARTURE</p>
+                        <p className="text-white font-bold text-sm">
+                          {(() => {
+                            const departureDateTime = getDepartureDateTime();
+                            if (!departureDateTime) return 'TBA';
+                            return departureDateTime.toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric"
+                            }) + ' - ' + departureDateTime.toLocaleTimeString("en-GB", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false
+                            });
+                          })()}
+                        </p>
+                      </div>
+                      <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+                        <p className="text-slate-400 text-xs font-medium mb-1">AVAILABLE</p>
+                        <p className="text-white font-bold text-sm">
+                          {ticket.quantity} Seats
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Amenities */}
+                    {ticket.perks && ticket.perks.length > 0 && (
+                      <div>
+                        <p className="text-slate-400 text-xs font-medium mb-3">AMENITIES</p>
+                        <div className="flex flex-wrap gap-2">
+                          {ticket.perks.map((perk, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-slate-800/50 backdrop-blur-sm border border-slate-600/30 rounded-full text-slate-300 text-xs font-medium"
+                            >
+                              {perk}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Vertical Dashed Line (Perforation Effect) */}
+                  <div className="hidden lg:block w-px mx-6">
+                    <div className="h-full border-l-2 border-dashed border-slate-600/50"></div>
+                  </div>
+                  
+                  {/* Mobile Horizontal Dashed Line */}
+                  <div className="lg:hidden w-full my-6">
+                    <div className="w-full border-t-2 border-dashed border-slate-600/50"></div>
+                  </div>
+
+                  {/* Right Side - Ticket Stub */}
+                  <div className="lg:w-80">
+                    <div className="text-center mb-6">
+                      <p className="text-slate-400 text-xs font-medium mb-2">BOOKING ID</p>
+                      <div className="bg-slate-800/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-600/30">
+                        <p className="text-white font-mono text-lg font-bold tracking-wider">
+                          UR-{ticket._id?.slice(-6).toUpperCase() || 'XXXXXX'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-center mb-8">
+                      <p className="text-slate-400 text-xs font-medium mb-2">PRICE PER TICKET</p>
+                      <div className="bg-gradient-to-r from-[#b35a44] to-blue-500 p-[1px] rounded-2xl">
+                        <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl px-6 py-4">
+                          <p className="text-white text-2xl lg:text-3xl font-bold">
+                            ৳{ticket.pricePerUnit?.toLocaleString() || 0}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowModal(true)}
+                      disabled={
+                        !user ||
+                        userRole === "admin" ||
+                        userRole === "vendor" ||
+                        isDepartureTimePassed() ||
+                        ticket.quantity === 0
+                      }
+                      className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg ${
+                        !user ||
+                        userRole === "admin" ||
+                        userRole === "vendor" ||
+                        isDepartureTimePassed() ||
+                        ticket.quantity === 0
+                          ? "bg-slate-700/50 text-slate-500 cursor-not-allowed border border-slate-600/30"
+                          : "bg-gradient-to-r from-[#b35a44] to-blue-500 text-white hover:shadow-xl hover:scale-105 shadow-[#b35a44]/20"
+                      }`}
+                    >
+                      {userRole === "admin"
+                        ? "🚫 Admin Cannot Book"
+                        : userRole === "vendor"
+                        ? "🚫 Vendor Cannot Book"
+                        : isDepartureTimePassed()
+                        ? "🚫 Departure Time Passed"
+                        : ticket.quantity === 0
+                        ? "Sold Out"
+                        : "Confirm Booking"}
+                    </button>
+
+                    <div className="mt-4 text-center">
+                      <p className="text-slate-500 text-xs">
+                        Secure booking with Uraan
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -430,19 +577,15 @@ const TicketDetails = () => {
             </div>
 
             {!isDepartureTimePassed() && (
-              <div
-                className={`bg-gradient-to-r ${getTransportColor(
-                  ticket.transportType
-                )} rounded-3xl shadow-2xl p-8 text-white hover:scale-105 transition-all duration-300`}
-              >
-                <p className="text-center text-xl font-semibold mb-4">
+              <div className="bg-slate-900/40 backdrop-blur-xl border border-[#b35a44]/20 rounded-3xl shadow-2xl p-8 hover:scale-105 transition-all duration-300">
+                <p className="text-center text-xl font-semibold mb-6 text-white flex items-center justify-center gap-2">
                   ⏰ Time Until Departure
                 </p>
                 {(() => {
                   const departureDateTime = getDepartureDateTime();
                   if (!departureDateTime) {
                     return (
-                      <div className="text-center text-2xl font-semibold">
+                      <div className="text-center text-2xl font-semibold text-slate-300">
                         Departure time to be announced
                       </div>
                     );
@@ -454,35 +597,43 @@ const TicketDetails = () => {
                       renderer={({ days, hours, minutes, seconds, completed }) => {
                         if (completed) {
                           return (
-                            <div className="text-center text-2xl font-semibold">
+                            <div className="text-center text-2xl font-semibold text-white">
                               🚀 Departure Time Reached!
                             </div>
                           );
                         }
                         
+                        // Ensure values are numbers and not NaN
+                        const displayDays = isNaN(days) ? 0 : days;
+                        const displayHours = isNaN(hours) ? 0 : hours;
+                        const displayMinutes = isNaN(minutes) ? 0 : minutes;
+                        const displaySeconds = isNaN(seconds) ? 0 : seconds;
+                        
                         return (
-                          <div className="grid grid-cols-4 gap-4">
-                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                              <p className="text-4xl lg:text-5xl font-bold">{days || 0}</p>
-                              <p className="text-sm mt-2 font-medium">Days</p>
-                            </div>
-                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                              <p className="text-4xl lg:text-5xl font-bold">
-                                {hours || 0}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-slate-800/50 backdrop-blur-md border border-slate-600/30 rounded-2xl p-4 text-center hover:bg-slate-700/50 transition-all">
+                              <p className="text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(179,90,68,0.8)]">
+                                {displayDays}
                               </p>
-                              <p className="text-sm mt-2 font-medium">Hours</p>
+                              <p className="text-xs mt-2 font-medium text-slate-300">Days</p>
                             </div>
-                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                              <p className="text-4xl lg:text-5xl font-bold">
-                                {minutes || 0}
+                            <div className="bg-slate-800/50 backdrop-blur-md border border-slate-600/30 rounded-2xl p-4 text-center hover:bg-slate-700/50 transition-all">
+                              <p className="text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(179,90,68,0.8)]">
+                                {displayHours}
                               </p>
-                              <p className="text-sm mt-2 font-medium">Minutes</p>
+                              <p className="text-xs mt-2 font-medium text-slate-300">Hours</p>
                             </div>
-                            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center hover:bg-white/30 transition-all">
-                              <p className="text-4xl lg:text-5xl font-bold">
-                                {seconds || 0}
+                            <div className="bg-slate-800/50 backdrop-blur-md border border-slate-600/30 rounded-2xl p-4 text-center hover:bg-slate-700/50 transition-all">
+                              <p className="text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(179,90,68,0.8)]">
+                                {displayMinutes}
                               </p>
-                              <p className="text-sm mt-2 font-medium">Seconds</p>
+                              <p className="text-xs mt-2 font-medium text-slate-300">Minutes</p>
+                            </div>
+                            <div className="bg-slate-800/50 backdrop-blur-md border border-slate-600/30 rounded-2xl p-4 text-center hover:bg-slate-700/50 transition-all">
+                              <p className="text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_0_8px_rgba(179,90,68,0.8)]">
+                                {displaySeconds}
+                              </p>
+                              <p className="text-xs mt-2 font-medium text-slate-300">Seconds</p>
                             </div>
                           </div>
                         );

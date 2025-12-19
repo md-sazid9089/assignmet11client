@@ -87,7 +87,7 @@ const Login = () => {
       console.log('✅ Firebase login successful for:', email);
       
       // Step 2: Get user role from backend
-      const response = await api.post('/users/generate-token', { 
+      const response = await api.post('/users/jwt', { 
         email: firebaseResult.user.email 
       });
       
@@ -165,7 +165,7 @@ const Login = () => {
       console.log('✅ Google login successful:', result?.user?.email);
       
       // Step 2: Get user role from backend
-      const response = await api.post('/users/generate-token', { 
+      const response = await api.post('/users/jwt', { 
         email: result.user.email 
       });
       

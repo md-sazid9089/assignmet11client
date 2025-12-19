@@ -377,8 +377,17 @@ const MyBookedTickets = () => {
     queryClient.invalidateQueries(["userBookings"]);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "Approved":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "Cancelled":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "Paid":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      // Legacy support for old status values
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
       case "accepted":
@@ -484,31 +493,89 @@ const MyBookedTickets = () => {
                     </div>
                   )}
 
-                {/* PDF Download and Cancel buttons */}
-                <div className="grid grid-cols-2 gap-2">
-                  <PDFDownloadLink
-                    document={<TicketPDF booking={booking} />}
-                    fileName={`uraan-ticket-${booking.bookingId || booking._id}.pdf`}
-                    className="flex items-center justify-center space-x-2 bg-[#0f172a] text-white py-3 rounded-lg hover:bg-slate-700 transition font-semibold text-sm"
-                  >
-                    {({ loading }) => (
-                      <>
-                        <FaDownload className={loading ? 'animate-spin' : ''} />
-                        <span>{loading ? 'Generating...' : 'Download PDF'}</span>
-                      </>
-                    )}
-                  </PDFDownloadLink>
-                  
-                  <button
-                    onClick={() => {
-                      setCancelBooking(booking);
-                      setShowCancelModal(true);
-                    }}
-                    className="flex items-center justify-center space-x-2 border-2 border-[#b35a44] text-[#b35a44] py-3 rounded-lg hover:bg-[#b35a44] hover:text-white transition font-semibold text-sm"
-                  >
-                    <FaTrash />
-                    <span>Cancel</span>
-                  </button>
+                {/* Status Badge and Action Buttons */}
+                <div className="space-y-3">
+                  {/* Status Badge */}
+                  <div className="flex justify-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(booking.status)}`}
+                    >
+                      {booking.status || 'Pending'}
+                    </span>
+                  </div>
+
+                  {/* Status Messages */}
+                  {booking.status === 'Pending' && (
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                      <div className="flex items-center justify-center space-x-2 text-yellow-700 dark:text-yellow-300">
+                        <div className="animate-pulse">⏳</div>
+                        <span className="text-sm font-medium">Waiting for Admin Approval</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {booking.status === 'Approved' && (
+                    <div className="space-y-2">
+                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                        <div className="flex items-center justify-center space-x-2 text-green-700 dark:text-green-300">
+                          <span className="text-lg">✅</span>
+                          <span className="text-sm font-medium">Booking Approved!</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setPaymentBooking(booking)}
+                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-green-500 to-blue-500 text-white py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition font-semibold text-sm shadow-lg"
+                      >
+                        <FaCreditCard />
+                        <span>Pay Now</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {booking.status === 'Paid' && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <div className="flex items-center justify-center space-x-2 text-blue-700 dark:text-blue-300">
+                        <span className="text-lg">🎫</span>
+                        <span className="text-sm font-medium">Payment Complete!</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {booking.status === 'Cancelled' && (
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                      <div className="flex items-center justify-center space-x-2 text-red-700 dark:text-red-300">
+                        <span className="text-lg">❌</span>
+                        <span className="text-sm font-medium">Booking Rejected</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Always show Download PDF and Cancel buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <PDFDownloadLink
+                      document={<TicketPDF booking={booking} />}
+                      fileName={`uraan-ticket-${booking.bookingId || booking._id}.pdf`}
+                      className="flex items-center justify-center space-x-2 bg-[#0f172a] text-white py-3 rounded-lg hover:bg-slate-700 transition font-semibold text-sm"
+                    >
+                      {({ loading }) => (
+                        <>
+                          <FaDownload className={loading ? 'animate-spin' : ''} />
+                          <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                    
+                    <button
+                      onClick={() => {
+                        setCancelBooking(booking);
+                        setShowCancelModal(true);
+                      }}
+                      className="flex items-center justify-center space-x-2 border-2 border-[#b35a44] text-[#b35a44] py-3 rounded-lg hover:bg-[#b35a44] hover:text-white transition font-semibold text-sm"
+                    >
+                      <FaTrash />
+                      <span>Cancel</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
