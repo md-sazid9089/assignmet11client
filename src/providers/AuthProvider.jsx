@@ -135,7 +135,7 @@ const AuthProviders = ({ children }) => {
         try {
           console.log('🔄 AuthProvider: Calling backend to create/update user');
           const response = await api.post("/users/create", {
-            name: currentUser.displayName,
+            name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
             email: currentUser.email,
             photoURL: currentUser.photoURL,
             firebaseUid: currentUser.uid,
