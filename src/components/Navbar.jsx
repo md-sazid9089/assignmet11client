@@ -21,7 +21,7 @@ const Navbar = () => {
 
   const isHomePage = location.pathname === '/';
 
-  // Headroom effect - Hide/Show navbar on scroll
+  // Headroom effect - Hide/Show navbar on scroll with modern animations
   useEffect(() => {
     let ticking = false;
 
@@ -35,20 +35,24 @@ const Navbar = () => {
             setIsScrolled(true);
             
             if (currentScrollY > lastScrollY.current && currentScrollY > 200) {
-              // Scrolling down - hide navbar
+              // Scrolling down - hide navbar with fade and slide up
               setIsVisible(false);
               gsap.to(navRef.current, {
                 y: -100,
-                duration: 0.3,
-                ease: "power2.inOut",
+                opacity: 0,
+                duration: 0.4,
+                ease: "power3.out",
+                filter: "blur(4px)",
               });
             } else if (currentScrollY < lastScrollY.current) {
-              // Scrolling up - show navbar
+              // Scrolling up - show navbar with fade and slide down
               setIsVisible(true);
               gsap.to(navRef.current, {
                 y: 0,
-                duration: 0.3,
-                ease: "power2.inOut",
+                opacity: 1,
+                duration: 0.5,
+                ease: "power3.out",
+                filter: "blur(0px)",
               });
             }
           } else {
@@ -56,8 +60,10 @@ const Navbar = () => {
             setIsVisible(true);
             gsap.to(navRef.current, {
               y: 0,
-              duration: 0.3,
-              ease: "power2.inOut",
+              opacity: 1,
+              duration: 0.4,
+              ease: "power2.out",
+              filter: "blur(0px)",
             });
           }
 
@@ -143,11 +149,12 @@ const Navbar = () => {
   return (
     <nav 
       ref={navRef}
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b ${
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b ${
         isHomePage && !isScrolled
           ? 'bg-transparent border-transparent' 
-          : 'bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-700 shadow-lg'
+          : 'bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-700 shadow-2xl shadow-slate-900/50'
       }`}
+      style={{ willChange: 'transform, opacity' }}
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="h-20 flex items-center justify-between">
