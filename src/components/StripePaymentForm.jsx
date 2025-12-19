@@ -13,9 +13,12 @@ import {
   FaLock, 
   FaSpinner, 
   FaTimes,
-  FaCheckCircle 
+  FaCheckCircle,
+  FaDownload
 } from 'react-icons/fa';
 import { CreditCard, Shield } from 'lucide-react';
+import { pdf } from '@react-pdf/renderer';
+import TicketPDF from './TicketPDF';
 
 // Initialize Stripe
 const stripePromise = loadStripe(
@@ -29,27 +32,39 @@ if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
   // // console.log('✅ Stripe publishable key loaded:', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 20) + '...');
 }
 
-// Slate & Clay theme styles for CardElement
+// High-Visibility Slate & Clay theme styles for CardElement
 const cardElementOptions = {
   style: {
     base: {
-      fontSize: '16px',
-      color: '#ffffff',
-      backgroundColor: '#1e293b',
-      fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
+      fontSize: '18px',
+      color: '#ffffff', // Pure white for maximum visibility
+      backgroundColor: 'transparent',
+      fontFamily: 'inherit',
       fontSmoothing: 'antialiased',
+      fontWeight: '700',
+      letterSpacing: '0.75px',
+      lineHeight: '28px',
       '::placeholder': {
-        color: '#64748b',
+        color: '#94a3b8', // Brighter slate-400 for placeholders
+        fontWeight: '500',
       },
       iconColor: '#b35a44',
+      ':focus': {
+        color: '#ffffff',
+      },
+      ':hover': {
+        color: '#ffffff',
+      },
     },
     invalid: {
-      color: '#ef4444',
+      color: '#ffffff', // Pure white even when invalid
       iconColor: '#ef4444',
+      fontWeight: '700',
     },
     complete: {
-      color: '#10b981',
+      color: '#ffffff', // Pure white when complete
       iconColor: '#10b981',
+      fontWeight: '700',
     },
   },
   hidePostalCode: false,
@@ -68,6 +83,61 @@ const CheckoutForm = ({
   const [processing, setProcessing] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState('');
+  const [paymentData, setPaymentData] = useState(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!paymentData || !paymentData.booking) {
+      toast.error('Booking information not available');
+      return;
+    }
+
+    setDownloadingPdf(true);
+    try {
+      const booking = paymentData.booking;
+      
+      // Generate PDF
+      const pdfDocument = (
+        <TicketPDF 
+          booking={{
+            _id: booking._id,
+            from: booking.ticketId?.from || 'N/A',
+            to: booking.ticketId?.to || 'N/A',
+            busName: booking.ticketId?.busName || 'N/A',
+            departureTime: booking.ticketId?.departureTime || 'N/A',
+            arrivalTime: booking.ticketId?.arrivalTime || 'N/A',
+            date: booking.travelDate,
+            seatNumbers: booking.seatNumbers || [],
+            price: booking.totalPrice,
+            userName: booking.userId?.name || 'N/A',
+            userEmail: booking.userId?.email || 'N/A',
+            status: booking.status,
+            paymentStatus: booking.paymentStatus,
+            transactionId: paymentData.transaction?._id || 'N/A',
+          }}
+        />
+      );
+
+      const blob = await pdf(pdfDocument).toBlob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ticket-${booking._id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('PDF downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast.error('Failed to download PDF. Please try again.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -172,6 +242,13 @@ const CheckoutForm = ({
 
           // // console.log('📊 Payment confirmed on backend:', confirmResponse.data);
 
+          // Store payment data for PDF generation
+          setPaymentData({
+            paymentIntent: result.paymentIntent,
+            transaction: confirmResponse.data.transaction,
+            booking: confirmResponse.data.booking,
+          });
+
           // Call success callback
           if (onSuccess) {
             onSuccess({
@@ -208,12 +285,12 @@ const CheckoutForm = ({
           </label>
           
           <div className="relative">
-            <div className="p-4 bg-slate-800 border border-slate-600 rounded-xl focus-within:border-[#b35a44] focus-within:ring-2 focus-within:ring-[#b35a44]/20 transition-all">
+            <div className="p-5 bg-slate-900/90 border border-slate-700/50 rounded-xl focus-within:border-[#b35a44] focus-within:ring-1 focus-within:ring-[#b35a44] transition-all duration-200 min-h-[56px] shadow-inner">
               <CardElement options={cardElementOptions} />
             </div>
             
             {/* Card Icons */}
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 pointer-events-none">
               <FaCreditCard className="text-slate-400 text-sm" />
             </div>
           </div>
@@ -252,12 +329,34 @@ const CheckoutForm = ({
 
         {/* Success Display */}
         {succeeded && (
-          <div className="bg-green-900/20 border border-green-600 rounded-xl p-4 flex items-center space-x-3">
-            <FaCheckCircle className="text-green-400" />
-            <div>
-              <p className="text-green-400 font-medium">Payment Successful!</p>
-              <p className="text-green-300 text-sm">Your payment has been processed successfully.</p>
+          <div className="bg-green-900/20 border border-green-600 rounded-xl p-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <FaCheckCircle className="text-green-400 text-xl" />
+              <div>
+                <p className="text-green-400 font-medium">Payment Successful!</p>
+                <p className="text-green-300 text-sm">Your payment has been processed successfully.</p>
+              </div>
             </div>
+            
+            {/* Download PDF Button */}
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              disabled={downloadingPdf}
+              className="w-full px-6 py-3 bg-[#b35a44] hover:bg-[#a04d39] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            >
+              {downloadingPdf ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  <span>Generating PDF...</span>
+                </>
+              ) : (
+                <>
+                  <FaDownload />
+                  <span>Download Ticket PDF</span>
+                </>
+              )}
+            </button>
           </div>
         )}
 
