@@ -95,7 +95,7 @@ const CheckoutForm = ({
       // // console.log('🏦 Creating payment intent...');
       
       const paymentIntentResponse = await axios.post(
-        `${import.meta.env.VITE_API_URL}/payment/create-intent`,
+        `${import.meta.env.VITE_API_URL}/payments/create-intent`,
         {
           amount: amount,
           currency: currency,
@@ -156,7 +156,7 @@ const CheckoutForm = ({
         // Step 3: Confirm payment on backend and update booking/transaction
         try {
           const confirmResponse = await axios.post(
-            `${import.meta.env.VITE_API_URL}/payment/confirm`,
+            `${import.meta.env.VITE_API_URL}/payments/confirm`,
             {
               paymentIntentId: result.paymentIntent.id,
               bookingId: bookingData?.bookingId || null,
