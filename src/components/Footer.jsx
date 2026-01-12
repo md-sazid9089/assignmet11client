@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { useState } from "react";
 import logo from "../assets/logo.png";
-import { Linkedin, Facebook, Instagram, Send } from "lucide-react";
+import { Linkedin, Facebook, Instagram, Send, Github } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Footer = () => {
@@ -60,7 +60,7 @@ const Footer = () => {
             {/* Social Icons */}
             <div className="flex items-center space-x-4 pt-2">
               <a
-                href="https://github.com/md-sazid9089"
+                href="https://www.linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
@@ -69,7 +69,7 @@ const Footer = () => {
                 <Linkedin className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
               <a
-                href="https://github.com/md-sazid9089"
+                href="https://www.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
@@ -78,13 +78,22 @@ const Footer = () => {
                 <Facebook className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
               <a
-                href="https://github.com/md-sazid9089"
+                href="https://www.instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
+              </a>
+              <a
+                href="https://github.com/md-sazid9089"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-[#b35a44] transition-all duration-300 group"
+                aria-label="GitHub"
+              >
+                <Github className="w-5 h-5 text-slate-400 group-hover:text-white transition" />
               </a>
             </div>
           </div>
