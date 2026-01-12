@@ -29,8 +29,8 @@ const Contact = () => {
     {
       icon: <FaEnvelope className="text-3xl text-[#b35a44]" />,
       title: "Email",
-      details: "support@ticketbari.com",
-      link: "mailto:support@ticketbari.com",
+      details: "support@uran.com",
+      link: "mailto:support@uran.com",
     },
     {
       icon: <FaPhone className="text-3xl text-[#d97757]" />,
@@ -41,7 +41,7 @@ const Contact = () => {
     {
       icon: <FaMapMarkerAlt className="text-3xl text-[#b35a44]" />,
       title: "Office",
-      details: "123 Motijheel, Dhaka, Bangladesh",
+      details: "123 Mogbazar, Dhaka, Bangladesh",
       link: null,
     },
   ];
