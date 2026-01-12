@@ -18,6 +18,7 @@ import {
   Download,
   RefreshCw,
 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const AdminDashboard = () => {
   // Get user from auth context
@@ -496,6 +497,185 @@ const AdminDashboard = () => {
             <p className="text-purple-400 text-xs mt-1">
               {((stats.paidBookings / Math.max(stats.totalBookings, 1)) * 100).toFixed(1)}% completion rate
             </p>
+          </div>
+        </div>
+
+        {/* Pie Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* User Distribution Pie Chart */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-400" />
+              User Distribution
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Regular Users', value: stats.regularUsers, color: '#60a5fa' },
+                    { name: 'Vendors', value: stats.vendors, color: '#d97757' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {[
+                    { name: 'Regular Users', value: stats.regularUsers, color: '#60a5fa' },
+                    { name: 'Vendors', value: stats.vendors, color: '#d97757' },
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1e293b', 
+                    border: '1px solid #475569',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#94a3b8' }}
+                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Ticket Status Pie Chart */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Ticket className="w-5 h-5 text-orange-400" />
+              Ticket Status
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Approved Tickets', value: stats.approvedTickets, color: '#22c55e' },
+                    { name: 'Pending Tickets', value: stats.pendingTickets, color: '#f59e0b' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {[
+                    { name: 'Approved Tickets', value: stats.approvedTickets, color: '#22c55e' },
+                    { name: 'Pending Tickets', value: stats.pendingTickets, color: '#f59e0b' },
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1e293b', 
+                    border: '1px solid #475569',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#94a3b8' }}
+                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Booking Status Pie Chart */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-purple-400" />
+              Booking Status
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Paid Bookings', value: stats.paidBookings, color: '#a78bfa' },
+                    { name: 'Pending Bookings', value: stats.totalBookings - stats.paidBookings, color: '#64748b' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {[
+                    { name: 'Paid Bookings', value: stats.paidBookings, color: '#a78bfa' },
+                    { name: 'Pending Bookings', value: stats.totalBookings - stats.paidBookings, color: '#64748b' },
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1e293b', 
+                    border: '1px solid #475569',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#94a3b8' }}
+                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Transaction Success Rate Pie Chart */}
+          <div className="bg-[#1e293b] rounded-2xl p-6 border border-slate-700">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-green-400" />
+              Transaction Success Rate
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Successful', value: stats.successfulTransactions, color: '#22c55e' },
+                    { name: 'Failed', value: stats.totalTransactions - stats.successfulTransactions, color: '#ef4444' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {[
+                    { name: 'Successful', value: stats.successfulTransactions, color: '#22c55e' },
+                    { name: 'Failed', value: stats.totalTransactions - stats.successfulTransactions, color: '#ef4444' },
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1e293b', 
+                    border: '1px solid #475569',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#94a3b8' }}
+                  formatter={(value) => <span style={{ color: '#94a3b8' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
