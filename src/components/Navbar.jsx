@@ -140,6 +140,9 @@ const Navbar = () => {
       <NavLink to="/about" className={linkClass}>
         About
       </NavLink>
+      <NavLink to="/blog" className={linkClass}>
+        Blog
+      </NavLink>
       <NavLink to="/contact" className={linkClass}>
         Contact
       </NavLink>

@@ -6,6 +6,8 @@ import ForgotPassword from "../pages/Auth/ForgotPassword";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import Blog from "../pages/Blog";
+import BlogDetails from "../pages/BlogDetails";
 import PrivateRoute from "./PrivateRoute";
 import RoleBasedRoute from "./RoleBasedRoute";
 import AllTicket from "../pages/Tickets/AllTicket";
@@ -59,6 +61,22 @@ export const router = createBrowserRouter([
       {
         path: "about",
         element: <About />,
+      },
+      {
+        path: "blog",
+        element: (
+          <PrivateRoute>
+            <Blog />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "blog/:id",
+        element: (
+          <PrivateRoute>
+            <BlogDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: "contact",
